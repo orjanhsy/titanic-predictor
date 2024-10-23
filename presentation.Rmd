@@ -1,0 +1,19 @@
+# Titanic Survival Predictor
+
+```{r, message=FALSE, echo=FALSE}
+# Dependencies
+dependencies <- c("tidyverse", "ggplot2", "readr", "here")
+for (pkg in dependencies) {
+  if (!require(pkg, character.only = TRUE)) {
+    install.packages(pkg)
+  }
+  library(pkg, character.only = TRUE)
+}
+```
+
+```{r}
+# Importing the data
+path <- here::here("data", "Titanic-Dataset.csv")
+data <- read_csv(path)
+data
+```

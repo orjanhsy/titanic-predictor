@@ -23,6 +23,14 @@ class_cabin_correlation <- function() {
     labs(x = "Cabin Prefix", y = "Count", title = "Count of Passengers by Cabin Prefix and Pclass") +
     theme_minimal()
   
+ 
+  
+  #Chi_squared to see association between Class and Cabin prefix
+  contingency_table <- xtabs(n ~ Pclass + cabin_prefix, data = cabin_counts)
+  print(contingency_table)
+  chi_squared_result <- chisq.test(contingency_table)
+  print(chi_squared_result)
+  
   plot
 }
 

@@ -25,11 +25,15 @@ split_data <- initial_split(data, prop = 0.9)
 
 titanic_training <- training(split_data)
 titanic_test <- testing(split_data)
-
-glimpse(titanic_test)
-glimpse(titanic_training)
+titanic_test
 ```
 
+##Corelation Passanger class and Cabin Number
+```{r}
+class_cabin_data <- data %>% 
+  select(Pclass, Cabin) %>%
+  filter(!is.na(Cabin)) %>%
+  mutate(cabin_prefix = substr(Cabin, 1, 1))
 
-
-
+View(class_cabin_data)
+```

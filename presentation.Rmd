@@ -30,10 +30,6 @@ titanic_test
 
 ##Corelation Passanger class and Cabin Number
 ```{r}
-class_cabin_data <- data %>% 
-  select(Pclass, Cabin) %>%
-  filter(!is.na(Cabin)) %>%
-  mutate(cabin_prefix = substr(Cabin, 1, 1))
-
-View(class_cabin_data)
+source("wrangling.R")
+class_cabin_correlation()
 ```

@@ -2,7 +2,7 @@
 
 ```{r, message=FALSE, echo=FALSE}
 # Dependencies
-dependencies <- c("tidyverse", "ggplot2", "readr", "here")
+dependencies <- c("tidyverse", "ggplot2", "readr", "here", "rsample")
 for (pkg in dependencies) {
   if (!require(pkg, character.only = TRUE)) {
     install.packages(pkg)
@@ -17,3 +17,19 @@ path <- here::here("data", "Titanic-Dataset.csv")
 data <- read_csv(path)
 data
 ```
+
+##Split Data
+```{r}
+set.seed(123)
+split_data <- initial_split(data, prop = 0.9)
+
+titanic_training <- training(split_data)
+titanic_test <- testing(split_data)
+
+glimpse(titanic_test)
+glimpse(titanic_training)
+```
+
+
+
+

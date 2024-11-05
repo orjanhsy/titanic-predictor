@@ -18,58 +18,8 @@ data <- read_csv(path)
 view(data)
 ```
 
-## Split Data
-```{r}
-set.seed(123)
-split_data <- initial_split(data, prop = 0.9)
-
-titanic_training <- training(split_data)
-titanic_test <- testing(split_data)
-titanic_test
-```
-
-<<<<<<< HEAD
-## Create a linear regression model
-```{r}
-lr_model <- linear_reg() %>%
-  set_engine('lm') %>%
-  set_mode('regression')
-
-lr_model
-
-```
-
-## Fit the model to the data
-```{r}
-lr_fit <- lr_model %>%
-  fit(Survived ~ Age + Sex)
-```
-
-
-## Number of NA cabin samples
-```{r, echo=FALSE}
-total <- length(data$Cabin)
-data_no_cabins <- data %>% filter(is.na(Cabin))
-wo_cabin <- length(data_no_cabins$Cabin)
-sprintf("Total: %s, Without cabins: %s", total, wo_cabin)
-glimpse(data_no_cabins)
-```
-
-## Plot accuracy
-```{r}
-```
-
-
-```{r}
-```
-
-
-
-
-=======
-##Corelation Passanger class and Cabin Number
+#Corelation Passanger class and Cabin Number
 ```{r}
 source("wrangling.R")
 class_cabin_correlation()
 ```
->>>>>>> data/cabin-pclass-correlation

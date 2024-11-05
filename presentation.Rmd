@@ -15,7 +15,7 @@ for (pkg in dependencies) {
 # Importing the data
 path <- here::here("data", "Titanic-Dataset.csv")
 data <- read_csv(path)
-data
+view(data)
 ```
 
 ## Split Data
@@ -25,11 +25,10 @@ split_data <- initial_split(data, prop = 0.9)
 
 titanic_training <- training(split_data)
 titanic_test <- testing(split_data)
-
-glimpse(titanic_test)
-glimpse(titanic_training)
+titanic_test
 ```
 
+<<<<<<< HEAD
 ## Create a linear regression model
 ```{r}
 lr_model <- linear_reg() %>%
@@ -67,3 +66,10 @@ glimpse(data_no_cabins)
 
 
 
+=======
+##Corelation Passanger class and Cabin Number
+```{r}
+source("wrangling.R")
+class_cabin_correlation()
+```
+>>>>>>> data/cabin-pclass-correlation

@@ -1,4 +1,14 @@
-# Titanic Survival Predictor
+# Prosjekt Titanic overlevelse
+### Tobias Windingstad og Ørjan Hammer
+
+### Introduksjon til oppgaven:
+
+##### I denne oppgaven skal vi bruke et dataset fra Kaggle.com som inneholder data om passagererne på Titanic da den sank natt til 15. april 1912 etter å ha truffet et isberg. Målet er å bruke denne daten og maskinlæring for å avgjøre om passagerer ville overlevd ulykken. 
+
+### Plot oversikt over data. Et glimpse f.eks.
+
+### Om data
+
 
 ```{r, message=FALSE, echo=FALSE}
 # Dependencies

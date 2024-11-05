@@ -20,6 +20,6 @@ view(data)
 
 #Corelation Passanger class and Cabin Number
 ```{r}
-source("wrangling.R")
+source("incomplete_data.R")
 class_cabin_correlation()
 ```

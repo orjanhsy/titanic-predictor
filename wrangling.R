@@ -8,6 +8,27 @@ for (pkg in dependencies) {
   library(pkg, character.only = TRUE)
 }
 
+get_median_fare_by_port <- function(data){
+  data %>%
+    filter(Pclass == 1) %>%
+    group_by(Embarked)
+}
+
+plot_median_fare <- function(data){
+  ggplot(data, aes(x = Embarked, y = median_fare)) +
+    geom_hline(yintercept = 80, color = "red", linetype = "dashed") +
+    geom_boxplot(
+      fill = "skyblue", 
+      outliers = TRUE,
+      notch = TRUE,
+      ) +
+    labs(title = "Median Fare by Port of Embarkation for First-Class Passengers",
+         x = "Port of Embarkation",
+         y = "Median Fare") +
+    theme_few()
+}
+median_fares <- get_median_fare_by_port(data)
+plot_median_fare(median_fares)
 
 handle_na_age <- function(data) {
   median_age <- median(data$Age, na.rm = TRUE)
@@ -34,6 +55,7 @@ prep_data <- function(na = FALSE) {
   view(data)
   return (data)
 }
+
 
 data <- prep_data()
 print(data)

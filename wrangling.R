@@ -64,7 +64,6 @@ getSibSpAge <- function(name, data) {
   # print(paste("Getting siblings for last name:", last_name))
   
   sib_sp <- filter(group_by(data, Name), get_last_name(Name) == last_name)
-  print(sib_sp)
   
   estimated_age <- round(mean(sib_sp$Age, na.rm = TRUE))
   return (estimated_age)
@@ -91,7 +90,7 @@ plot_median_fare <- function(){
   
 }
 
-prep_data <- function(na = FALSE) {
+wrangle_data <- function(na = FALSE) {
   # Importing the data
   path <- here::here("data", "Titanic-Dataset.csv")
   data <- read_csv(path)
@@ -105,12 +104,19 @@ prep_data <- function(na = FALSE) {
   #test
   stopifnot(length(data)==length(data %>% filter(!is.na(Embarked))))
   
+  # remove irrelevant variables
+  data <- data %>% select(-Cabin, -Name, -PassengerId, -Ticket)
+  
   return (data)
 }
 
-data <- prep_data()
-na_data <- prep_data(na = TRUE)
-glimpse(data)
+create_dummy_data <- function(data) {
+  
+}
+
+data <- wrangle_data()
+na_data <- wrangle_data(na = TRUE)
+view(data)
 
 
 

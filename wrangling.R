@@ -23,7 +23,7 @@ get_median_fare_by_port <- function(data){
     summarise(median_fare = median(Fare))
 }
 #plotting for visualization
-plot_median_fare <- function(median_fares, avarage_NA){
+create_median_fare_plot <- function(median_fares, avarage_NA){
   ggplot(median_fares, aes(x = Embarked, y = median_fare)) +
     geom_hline(yintercept = avarage_NA, color = "red", linetype = "dashed", size = 1) +
     geom_col(fill = "skyblue") +
@@ -83,18 +83,20 @@ extract_title <- function(data){
   return(data)
 }
 
+plot_median_fare <- function(){
+  median_fares <- get_median_fare_by_port(na_data)
+  avarage_na <- avarage_na_port(na_data)
+  plot <- plot_median_fare(median_fares, avarage_na)
+  print(plot)
+  
+}
+
 prep_data <- function(na = FALSE) {
   # Importing the data
   path <- here::here("data", "Titanic-Dataset.csv")
   data <- read_csv(path)
   
   if (na) return (data)
-  
-  median_fares <- get_median_fare_by_port(data)
-  avarage_na <- avarage_na_port(data)
-  plot <- plot_median_fare(median_fares, avarage_na)
-  print(plot)
-  
   
   data <- handle_na_age(data)
   data <- extract_title(data)
@@ -107,5 +109,9 @@ prep_data <- function(na = FALSE) {
 }
 
 data <- prep_data()
+na_data <- prep_data(na = TRUE)
 glimpse(data)
+
+
+
 

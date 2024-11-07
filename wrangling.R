@@ -9,7 +9,7 @@ for (pkg in dependencies) {
 }
 
 #get avarage price for NA port
-avarage_NA_port <- function(data){
+avarage_na_port <- function(data){
   filtered_NA <- data %>%
     filter(Pclass == 1, is.na(Embarked), na.rm = TRUE)
   mean_fare <- mean(filtered_NA$Fare)
@@ -23,9 +23,9 @@ get_median_fare_by_port <- function(data){
     summarise(median_fare = median(Fare))
 }
 #plotting for visualization
-plot_median_fare <- function(data){
-  ggplot(data, aes(x = Embarked, y = median_fare)) +
-    geom_hline(yintercept = avarage_NA_port(data), color = "red", linetype = "dashed", size = 1) +
+plot_median_fare <- function(median_fares, avarage_NA){
+  ggplot(median_fares, aes(x = Embarked, y = median_fare)) +
+    geom_hline(yintercept = avarage_NA, color = "red", linetype = "dashed", size = 1) +
     geom_col(fill = "skyblue") +
     labs(title = "Median bilettpris for avreisedestinasjon",
          x = "Avreisedestinasjon",
@@ -89,6 +89,12 @@ prep_data <- function(na = FALSE) {
   data <- read_csv(path)
   
   if (na) return (data)
+  
+  median_fares <- get_median_fare_by_port(data)
+  avarage_na <- avarage_na_port(data)
+  plot <- plot_median_fare(median_fares, avarage_na)
+  print(plot)
+  
   
   data <- handle_na_age(data)
   data <- extract_title(data)

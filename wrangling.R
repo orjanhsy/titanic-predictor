@@ -8,6 +8,45 @@ for (pkg in dependencies) {
   library(pkg, character.only = TRUE)
 }
 
+#get avarage price for NA port
+avarage_NA_port <- function(data){
+  filtered_NA <- data %>%
+    filter(Pclass == 1, is.na(Embarked), na.rm = TRUE)
+  mean_fare <- mean(filtered_NA$Fare)
+  return(mean_fare)
+}
+
+get_median_fare_by_port <- function(data){
+  data %>%
+    filter(Pclass == 1, !is.na(Embarked)) %>%
+    group_by(Embarked) %>%
+    summarise(median_fare = median(Fare))
+}
+#plotting for visualization
+plot_median_fare <- function(data){
+  ggplot(data, aes(x = Embarked, y = median_fare)) +
+    geom_hline(yintercept = avarage_NA_port(data), color = "red", linetype = "dashed", size = 1) +
+    geom_col(fill = "skyblue") +
+    labs(title = "Median bilettpris for avreisedestinasjon",
+         x = "Avreisedestinasjon",
+         y = "Median Bilettpris") +
+    theme_minimal()
+}
+
+#set NA Embarked to closest median
+set_port <- function(data){
+  median_fares_for_port <- get_median_fare_by_port(data)
+  mean_fare_NA <- avarage_NA_port(data)
+  
+  closest_port <- median_fares_for_port %>%
+    mutate(diff = abs(median_fare - mean_fare_NA)) %>%
+    slice(which.min(diff)) %>%
+    pull(Embarked)
+    
+  data <- data %>%
+    mutate(Embarked = ifelse(is.na(Embarked), closest_port, Embarked ))
+  return(data)
+}
 
 handle_na_age <- function(data) {
   median_age <- median(data$Age, na.rm = TRUE)
@@ -48,17 +87,19 @@ prep_data <- function(na = FALSE) {
   # Importing the data
   path <- here::here("data", "Titanic-Dataset.csv")
   data <- read_csv(path)
+  
   if (na) return (data)
+  
   data <- handle_na_age(data)
   data <- extract_title(data)
+  data <- set_port(data)
+  
+  #test
+  stopifnot(length(data)==length(data %>% filter(!is.na(Embarked))))
+  
   return (data)
 }
 
 data <- prep_data()
-view(data)
-
-
-
-
-
+glimpse(data)
 

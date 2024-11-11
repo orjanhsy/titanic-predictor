@@ -15,7 +15,7 @@ create_median_fare_plot <- function(median_fares, avarage_NA){
 plot_median_fare <- function(){
   median_fares <- get_median_fare_by_port(na_data)
   avarage_na <- avarage_na_port(na_data)
-  plot <- plot_median_fare(median_fares, avarage_na)
+  plot <- create_median_fare_plot(median_fares, avarage_na)
   print(plot)
 }
 

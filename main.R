@@ -55,23 +55,23 @@ main <- function() {
   
   errs <- tibble(
     Actual = t_test$Survived,
-    OLS = Actual - ols_pred,
-    LSO = Actual - lso_pred,
-    RF = Actual - rf_pred,
-    XGB = Actual - xgb_pred,
+    OLS_errors = Actual - ols_pred,
+    LSO_errors = Actual - lso_pred,
+    RF_errors = Actual - rf_pred,
+    XGB_errors = Actual - xgb_pred,
   ) 
       
   # mse
-  mse_ols <- mean(errs$OLS^2)
+  mse_ols <- mean(errs$OLS_errors^2)
   print(paste("MSE OLS: ", mse_ols))
   
-  mse_lso <- mean(errs$LSO^2)
+  mse_lso <- mean(errs$LSO_errors^2)
   print(paste("MSE LSO: ", mse_lso))
   
-  mse_rf <- mean(errs$RF^2)
+  mse_rf <- mean(errs$RF_errors^2)
   print(paste("MSE RF: ", mse_rf))
   
-  mse_xgb <- mean(errs$XGB^2)
+  mse_xgb <- mean(errs$XGB_errors^2)
   print(paste("MSE XGB: ", mse_xgb))
   
   acc_ols =  sum((errs$OLS > 0.499) == errs$Actual) / length(errs$Actual)
@@ -87,6 +87,14 @@ main <- function() {
   )
   print(accs)
   
+  plot <- errs %>%
+    pivot_longer(cols = ends_with("errors"), names_to = "Model", values_to = "Errors") %>%
+    ggplot(aes(x = Errors, fill = Model)
+    ) +
+    geom_density(alpha = 0.5) +
+    theme_minimal()
+  
+  print(plot)
 }
 
 main()

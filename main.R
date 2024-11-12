@@ -21,6 +21,7 @@ main <- function() {
   t_train <- model_data$t_train
   t_test <- model_data$t_test
   
+  
   # -- Models --
   # OLS 
   # TODO: RANK DEFICIENCY warning, needs to be understood -> handled.
@@ -29,28 +30,49 @@ main <- function() {
   print(summary(ols_model))
   print(alias(ols_model$fit))
 
-  ols_pred <- predict(ols_model, new_data = t_test)
+  ols_pred <- predict(ols_model, new_data = t_test) %>% pull(.pred)
   
   # LASSO
   lso_model <- lasso_model(t_train)
   print("Trained LASSO model:")
   print(summary(lso_model))
 
-  lso_pred <- predict(lso_model, new_data = t_test)
+  lso_pred <- predict(lso_model, new_data = t_test) %>% pull(.pred)
 
   # Random Forest 
   rf_model <- random_forest_model(t_train)
   print("Trained random forest model:")
   print(summary(rf_model))
 
-  rf_pred <- predict(rf_model, new_data = t_test)
+  rf_pred <- predict(rf_model, new_data = t_test) %>% pull(.pred)
   
   # Gradient Boosting Tree
   xgb_model <- xgboost_model(t_train)
   print("Trained Gradient Boosting Tree model:")
   print(summary(xgb_model))
   
-  xgb_pred <- predict(xgb_model, new_data = t_test)
+  xgb_pred <- predict(xgb_model, new_data = t_test) %>% pull(.pred)
+  
+  errs <- tibble(
+    Actual = t_test$Survived,
+    OLS = Actual - ols_pred,
+    LSO = Actual - lso_pred,
+    RF = Actual - rf_pred,
+    XGB = Actual - xgb_pred,
+  ) 
+  
+  # mse
+  mse_ols <- mean(errs$OLS^2)
+  print(paste("MSE OLS: ", mse_ols))
+  
+  mse_lso <- mean(errs$LSO^2)
+  print(paste("MSE LSO: ", mse_lso))
+  
+  mse_rf <- mean(errs$RF^2)
+  print(paste("MSE RF: ", mse_rf))
+  
+  mse_xgb <- mean(errs$XGB^2)
+  print(paste("MSE XGB: ", mse_xgb))
 }
 
 main()

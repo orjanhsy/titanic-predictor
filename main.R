@@ -60,7 +60,7 @@ main <- function() {
     RF = Actual - rf_pred,
     XGB = Actual - xgb_pred,
   ) 
-  
+      
   # mse
   mse_ols <- mean(errs$OLS^2)
   print(paste("MSE OLS: ", mse_ols))
@@ -73,6 +73,20 @@ main <- function() {
   
   mse_xgb <- mean(errs$XGB^2)
   print(paste("MSE XGB: ", mse_xgb))
+  
+  acc_ols =  sum((errs$OLS > 0.499) == errs$Actual) / length(errs$Actual)
+  acc_lso = sum((errs$LSO > 0.499) == errs$Actual) / length(errs$Actual)
+  acc_rf = sum((errs$RF > 0.499) == errs$Actual) / length(errs$Actual)
+  acc_xgb = sum((errs$XGB > 0.499) == errs$Actual) / length(errs$Actual)
+  
+  accs <- tibble(
+    osl = acc_ols,
+    lso = acc_lso,
+    rf = acc_rf,
+    xgb = acc_xgb
+  )
+  print(accs)
+  
 }
 
 main()

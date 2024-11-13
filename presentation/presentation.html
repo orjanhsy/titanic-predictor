@@ -359,12 +359,22 @@ display: none;
 </div>
 <div id="introduksjon-til-oppgaven" class="section level3">
 <h3>Introduksjon til oppgaven:</h3>
-<div id="i-denne-oppgaven-skal-vi-bruke-et-dataset-fra-kaggle.com-med-data-om-passagererne-på-titanic-da-den-sank-natt-til-15.-april-1912-etter-å-ha-truffet-et-isberg.-målet-er-å-bruke-denne-daten-til-maskinlæring-for-å-avgjøre-om-passagerer-ville-overlevd-ulykken." class="section level5">
-<h5>I denne oppgaven skal vi bruke et dataset fra Kaggle.com med data om
-passagererne på Titanic da den sank natt til 15. april 1912 etter å ha
-truffet et isberg. Målet er å bruke denne daten til maskinlæring for å
-avgjøre om passagerer ville overlevd ulykken.</h5>
-</div>
+<p>I denne oppgaven skal vi benytte et dataset fra Kaggle.com, som
+inneholder informasjon om passasjerene på Titanic – historiens mest
+kjente skipsforlis. Natt til 15. april 1912 sank Titanic etter å ha
+kollidert med et isfjell i Nord-Atlanteren. Datasetet gir oss
+informasjon om blant annet passasjerenes alder, kjønn, klasse,
+billettpris og avreisested.</p>
+<p>Målet med prosjektet er å anvende maskinlæring for å forutsi hvilke
+faktorer som hadde størst betydning for overlevelse. Vi skal trene en
+modell som kan forutsi om en gitt passasjer ville ha overlevd ulykken.
+Vi vil analysere variabler og deres innvirkning på overlevelse, og til
+slutt bygge en prediksjonsmodell som kan teste ulike hypotetiske
+scenarier.</p>
+<p>Prosjektet er skrevet i R Markdown, hvor vi benytter både R og ulike
+maskinlæringsbiblioteker for å gjennomføre analysen og prediksjonen.
+Gjennom prosjektet vil vi også vurdere modellens ytelse og mulige
+forbedringer for å øke prediksjonens presisjon.</p>
 </div>
 <div id="dependencies" class="section level3">
 <h3>Dependencies</h3>
@@ -384,6 +394,52 @@ source(&quot;../code/models/models.R&quot;)</code></pre>
 </div>
 <div id="data-wrangling" class="section level3">
 <h3>Data wrangling:</h3>
+<p>Data wrangling er prosessen med å forberede, rense og strukturere
+data for analyse(Kilde). I dette prosjektet håndterer vi flere viktige
+aspekter ved datasettet for å sikre at det er klart for modellering. Her
+er hva vi gjør i koden:</p>
+<div id="behandling-av-manglende-verdier-na" class="section level4">
+<h4>1. Behandling av manglende verdier (NA)</h4>
+<div id="avreisehavn" class="section level5">
+<h5>Avreisehavn:</h5>
+<p>To av av passasjerene mangler avreisehavn. Siden begge disse
+passasjerene har reist med førsteklasse og betalt samme pris finner vi
+gjennomsnittsprisen for alle førsteklasse-reisenede for hver havn. Vi
+setter så avreisehavnen for de to passasjerene til den havnen som
+korrelerer best med prisen de har betalt.</p>
+</div>
+<div id="alder" class="section level5">
+<h5>Alder</h5>
+<p>For passasjerer med manglende alder, bruker vi en median-alder som
+standard, med en ekstra detalj for personer som reiste med søsken eller
+ektefelle (SibSp &gt; 0), men ikke med barn eller foreldre (Parch == 0).
+I slike tilfeller bruker vi gjennomsnittsalderen for personer med samme
+etternavn (antatt å være søsken eller ektefeller). Dette gir mange av de
+reisende medianalder, men vi mener at ved å legge til denne behandlingen
+vil vi kunne ha noe sterkere antakelser om alderen til noen av
+passasjerene.</p>
+</div>
+</div>
+<div id="ekstrahere-tittel" class="section level4">
+<h4>2. Ekstrahere tittel</h4>
+<p>Vi ønsket å isolere tittelen fra navnet og legge den til i en egen
+kolonne. Vår teori er at dette kan gjøre dataen mer tilpasset
+maskinlæring ettersom tittelen kan være en indikator på faktorer som
+sivilstatus, alder eller sosioøkonomisk status.</p>
+</div>
+<div id="fjerne-irrelevante-og-manglende-variabler" class="section level4">
+<h4>3. Fjerne irrelevante og manglende variabler</h4>
+<p>For å redusere kompleksiteten i datasettet fjerner vi kolonnen Cabin
+ettersom den har svært mange i datasettet som ikke hadde denne
+variablen. Vi så først på muligeheten for at det var en tydelig
+sammenheng mellom Pclass og Cabin. Det var tydelig at passasjerer i
+Pclass 1 var konsentrert i A, B, C og D kabiner, men ettersom det er
+svært lite data på hvor de resterende reisende bodde ville vi ikke gjøre
+noen generalisering rundt dette. Name, Ticket og PassangerId er alle
+individuelle verdier som ikke vil ha noen påvikning på modellene så fi
+fjernet disse.</p>
+<p>Gjennom denne prosessen sørger vi for at datasettet er renere, mer
+konsistente og at de manglende variablene er håndtert.</p>
 <pre class="r"><code>  data &lt;- wrangle_data()</code></pre>
 <pre><code>## Rows: 891 Columns: 12
 ## ── Column specification ────────────────────────────────────────────────────────
@@ -402,9 +458,6 @@ source(&quot;../code/models/models.R&quot;)</code></pre>
 ## 
 ## ℹ Use `spec()` to retrieve the full column specification for this data.
 ## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.</code></pre>
-<div id="tekst-om-hva-vi-gjør-med-data-og-hvorfor-eventuelt-mer-kode-ect." class="section level4">
-<h4>tekst om hva vi gjør med data og hvorfor + eventuelt mer kode
-ect.</h4>
 </div>
 </div>
 <div id="kan-vise-helper-functions-som-ikke-kan-kjøres-fra-r-markdown-siden-wrangle_data-allerede-gjør-det.-f.eks." class="section level3">
@@ -420,18 +473,18 @@ wrangle_data() allerede gjør det. F.eks.</h3>
 <h3>Lag dummy-data og initial split</h3>
 <pre class="r"><code>model_data &lt;- create_dummy_data(data)</code></pre>
 <pre><code>## # A tibble: 712 × 9
-##    Survived Pclass Sex      Age SibSp Parch   Fare Embarked Title
-##       &lt;dbl&gt;  &lt;dbl&gt; &lt;fct&gt;  &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt;  &lt;dbl&gt; &lt;fct&gt;    &lt;fct&gt;
-##  1        1      3 female    26     1     0  16.1  S        Mrs  
-##  2        1      3 male      26     2     0  23.2  Q        Mr   
-##  3        1      1 female    16     0     0  86.5  S        Miss 
-##  4        0      3 male      29     0     0   9.48 S        Mr   
-##  5        0      3 male      28     0     0   7.90 S        Mr   
-##  6        1      3 female    26     0     0   7.92 S        Miss 
-##  7        0      2 male      28     0     0  10.5  S        Mr   
-##  8        0      3 male      42     0     0   7.65 S        Mr   
-##  9        0      2 male      28     0     0   0    S        Mr   
-## 10        1      1 female    40     1     1 134.   C        Mrs  
+##    Survived Pclass Sex      Age SibSp Parch  Fare Embarked Title 
+##       &lt;dbl&gt;  &lt;dbl&gt; &lt;fct&gt;  &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;fct&gt;    &lt;fct&gt; 
+##  1        0      1 male      71     0     0 34.7  C        Mr    
+##  2        0      3 male      28     0     0  7.23 C        Mr    
+##  3        0      3 male       4     4     2 31.3  S        Master
+##  4        0      3 male      26     0     0  7.90 S        Mr    
+##  5        0      3 male      61     0     0  6.24 S        Mr    
+##  6        0      3 male      19     0     0  8.16 S        Mr    
+##  7        0      3 male      28     8     2 69.6  S        Mr    
+##  8        0      1 male      28     0     0 26    S        Mr    
+##  9        1      1 male      25     1     0 91.1  C        Mr    
+## 10        1      3 female    26     1     0 15.5  Q        Miss  
 ## # ℹ 702 more rows</code></pre>
 <pre class="r"><code>t_train &lt;- model_data$t_train
 t_test &lt;- model_data$t_test</code></pre>
@@ -459,30 +512,26 @@ t_test &lt;- model_data$t_test</code></pre>
 ##     Title_Sir
 ## 
 ## Complete :
-##            (Intercept) Pclass Age SibSp Parch Fare Sex_male Embarked_Q
-## Title_Don  0           0      0   0     0     0    0        0         
-## Title_Lady 0           0      0   0     0     0    0        0         
-## Title_Mme  0           0      0   0     0     0    0        0         
-##            Embarked_S Title_Col Title_Dr Title_Jonkheer Title_Major
-## Title_Don  0          0         0        0              0          
-## Title_Lady 0          0         0        0              0          
-## Title_Mme  0          0         0        0              0          
-##            Title_Master Title_Miss Title_Mlle Title_Mr Title_Mrs Title_Ms
-## Title_Don  0            0          0          0        0         0       
-## Title_Lady 0            0          0          0        0         0       
-## Title_Mme  0            0          0          0        0         0       
-##            Title_Rev
-## Title_Don  0        
-## Title_Lady 0        
-## Title_Mme  0        
-##            Title_Rothes..the.Countess..of..Lucy.Noel.Martha.Dyer.Edwards.
-## Title_Don  0                                                             
-## Title_Lady 0                                                             
-## Title_Mme  0                                                             
-##            Title_Sir
-## Title_Don  0        
-## Title_Lady 0        
-## Title_Mme  0</code></pre>
+##           (Intercept) Pclass Age SibSp Parch Fare Sex_male Embarked_Q
+## Title_Don 0           0      0   0     0     0    0        0         
+## Title_Mme 0           0      0   0     0     0    0        0         
+## Title_Sir 0           0      0   0     0     0    0        0         
+##           Embarked_S Title_Col Title_Dr Title_Jonkheer Title_Lady Title_Major
+## Title_Don 0          0         0        0              0          0          
+## Title_Mme 0          0         0        0              0          0          
+## Title_Sir 0          0         0        0              0          0          
+##           Title_Master Title_Miss Title_Mlle Title_Mr Title_Mrs Title_Ms
+## Title_Don 0            0          0          0        0         0       
+## Title_Mme 0            0          0          0        0         0       
+## Title_Sir 0            0          0          0        0         0       
+##           Title_Rev
+## Title_Don 0        
+## Title_Mme 0        
+## Title_Sir 0        
+##           Title_Rothes..the.Countess..of..Lucy.Noel.Martha.Dyer.Edwards.
+## Title_Don 0                                                             
+## Title_Mme 0                                                             
+## Title_Sir 0</code></pre>
 <pre class="r"><code>  ols_pred &lt;- predict(ols_model, new_data = t_test) %&gt;% pull(.pred)</code></pre>
 <pre><code>## Warning in predict.lm(object = object$fit, newdata = new_data, type =
 ## &quot;response&quot;, : prediction from rank-deficient fit; consider predict(.,
@@ -544,16 +593,16 @@ t_test &lt;- model_data$t_test</code></pre>
 <h3>Kalkulere MSE og Accuracy</h3>
 <pre class="r"><code>mse_ols &lt;- mean(errs$OLS_errors^2)
 print(paste(&quot;MSE OLS: &quot;, mse_ols))</code></pre>
-<pre><code>## [1] &quot;MSE OLS:  0.139139325155372&quot;</code></pre>
+<pre><code>## [1] &quot;MSE OLS:  0.137610501892928&quot;</code></pre>
 <pre class="r"><code>mse_lso &lt;- mean(errs$LSO_errors^2)
 print(paste(&quot;MSE LSO: &quot;, mse_lso))</code></pre>
-<pre><code>## [1] &quot;MSE LSO:  0.160421284460437&quot;</code></pre>
+<pre><code>## [1] &quot;MSE LSO:  0.164743484468407&quot;</code></pre>
 <pre class="r"><code>mse_rf &lt;- mean(errs$RF_errors^2)
 print(paste(&quot;MSE RF: &quot;, mse_rf))</code></pre>
-<pre><code>## [1] &quot;MSE RF:  0.12674732622486&quot;</code></pre>
+<pre><code>## [1] &quot;MSE RF:  0.131826047507965&quot;</code></pre>
 <pre class="r"><code>mse_xgb &lt;- mean(errs$XGB_errors^2)
 print(paste(&quot;MSE XGB: &quot;, mse_xgb))</code></pre>
-<pre><code>## [1] &quot;MSE XGB:  0.131277772364774&quot;</code></pre>
+<pre><code>## [1] &quot;MSE XGB:  0.122347702175888&quot;</code></pre>
 <pre class="r"><code>acc_ols =  sum((errs$OLS &gt; 0.499) == errs$Actual) / length(errs$Actual)</code></pre>
 <pre><code>## Warning: Unknown or uninitialised column: `OLS`.</code></pre>
 <pre class="r"><code>acc_lso = sum((errs$LSO &gt; 0.499) == errs$Actual) / length(errs$Actual)</code></pre>

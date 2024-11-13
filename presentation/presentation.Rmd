@@ -3,7 +3,11 @@
 
 ### Introduksjon til oppgaven:
 
-##### I denne oppgaven skal vi bruke et dataset fra Kaggle.com med data om passagererne på Titanic da den sank natt til 15. april 1912 etter å ha truffet et isberg. Målet er å bruke denne daten til maskinlæring for å avgjøre om passagerer ville overlevd ulykken. 
+I denne oppgaven skal vi benytte et dataset fra Kaggle.com, som inneholder informasjon om passasjerene på Titanic – historiens mest kjente skipsforlis. Natt til 15. april 1912 sank Titanic etter å ha kollidert med et isfjell i Nord-Atlanteren. Datasetet gir oss informasjon om blant annet passasjerenes alder, kjønn, klasse, billettpris og avreisested.
+
+Målet med prosjektet er å anvende maskinlæring for å forutsi hvilke faktorer som hadde størst betydning for overlevelse. Vi skal trene en modell som kan forutsi om en gitt passasjer ville ha overlevd ulykken. Vi vil analysere variabler og deres innvirkning på overlevelse, og til slutt bygge en prediksjonsmodell som kan teste ulike hypotetiske scenarier.
+
+Prosjektet er skrevet i R Markdown, hvor vi benytter både R og ulike maskinlæringsbiblioteker for å gjennomføre analysen og prediksjonen. Gjennom prosjektet vil vi også vurdere modellens ytelse og mulige forbedringer for å øke prediksjonens presisjon.
 
 
 ### Dependencies
@@ -25,12 +29,31 @@ source("../code/models/models.R")
 ```
 
 ### Data wrangling:
+Data wrangling er prosessen med å forberede, rense og strukturere data for analyse(Kilde). I dette prosjektet håndterer vi flere viktige aspekter ved datasettet for å sikre at det er klart for modellering. Her er hva vi gjør i koden:
+
+#### 1. Behandling av manglende verdier (NA)
+
+##### Avreisehavn: 
+To av av passasjerene mangler avreisehavn. Siden begge disse passasjerene har reist med førsteklasse og betalt samme pris finner vi gjennomsnittsprisen for alle førsteklasse-reisenede for hver havn. Vi setter så avreisehavnen for de to passasjerene til den havnen som korrelerer best med prisen de har betalt.
+
+##### Alder
+For passasjerer med manglende alder, bruker vi en median-alder som standard, med en ekstra detalj for personer som reiste med søsken eller ektefelle (SibSp > 0), men ikke med barn eller foreldre (Parch == 0). I slike tilfeller bruker vi gjennomsnittsalderen for personer med samme etternavn (antatt å være søsken eller ektefeller). Dette gir mange av de reisende medianalder, men vi mener at ved å legge til denne behandlingen vil vi kunne ha noe sterkere antakelser om alderen til noen av passasjerene.
+
+#### 2. Ekstrahere tittel
+Vi ønsket å isolere tittelen fra navnet og legge den til i en egen kolonne. Vår teori er at dette kan gjøre dataen mer tilpasset maskinlæring ettersom tittelen kan være en indikator på faktorer som sivilstatus, alder eller sosioøkonomisk status. 
+
+#### 3. Fjerne irrelevante og manglende variabler
+For å redusere kompleksiteten i datasettet fjerner vi kolonnen Cabin ettersom den har svært mange i datasettet som ikke hadde denne variablen. Vi så først på muligeheten for at det var en tydelig sammenheng mellom Pclass og Cabin. Det var tydelig at passasjerer i Pclass 1 var konsentrert i A, B, C og D kabiner, men ettersom det er svært lite data på hvor de resterende reisende bodde ville vi ikke gjøre noen generalisering rundt dette. Name, Ticket og PassangerId er alle individuelle verdier som ikke vil ha noen påvikning på modellene så fi fjernet disse.
+
+
+Gjennom denne prosessen sørger vi for at datasettet er renere, mer konsistente og at de manglende variablene er håndtert. 
+
 ```{r}
   data <- wrangle_data()
   na_data <- wrangle_data(na = TRUE)
 ```
 
-#### tekst om hva vi gjør med data og hvorfor + eventuelt mer kode ect.
+
 
 ### Kan vise helper-functions som ikke kan kjøres fra r-markdown siden wrangle_data() allerede gjør det. F.eks.
 

@@ -6,17 +6,9 @@
 ##### I denne oppgaven skal vi bruke et dataset fra Kaggle.com med data om passagererne på Titanic da den sank natt til 15. april 1912 etter å ha truffet et isberg. Målet er å bruke denne daten til maskinlæring for å avgjøre om passagerer ville overlevd ulykken. 
 
 
-### Om data:
-####
-### Plot oversikt over data. Et glimpse f.eks.
-
-
-
-
-
-```{r, message=FALSE, echo=FALSE}
-# Dependencies
-dependencies <- c("tidyverse", "ggplot2", "readr", "here", "rsample", "parsnip")
+### Dependencies
+```{r, message=FALSE}
+dependencies <- c("tidyverse", "readr", "rsample", "tidymodels", "recipes", "glmnet", "ranger")
 for (pkg in dependencies) {
   if (!require(pkg, character.only = TRUE)) {
     install.packages(pkg)
@@ -25,15 +17,118 @@ for (pkg in dependencies) {
 }
 ```
 
+### Filer
 ```{r}
-# Importing the data
-path <- here::here("data", "Titanic-Dataset.csv")
-data <- read_csv(path)
-view(data)
+source("../code/wrangling/wrangling.R")
+source("../code/models/model_data.R")
+source("../code/models/models.R")
 ```
 
-#Corelation Passanger class and Cabin Number
+### Data wrangling:
 ```{r}
-source("incomplete_data.R")
-class_cabin_correlation()
+  data <- wrangle_data()
+  na_data <- wrangle_data(na = TRUE)
 ```
+
+#### tekst om hva vi gjør med data og hvorfor + eventuelt mer kode ect.
+
+### Kan vise helper-functions som ikke kan kjøres fra r-markdown siden wrangle_data() allerede gjør det. F.eks.
+
+```{r, eval=FALSE}
+get_titles <- function(data){
+  data <- data %>%
+    mutate(Title = sub(".*,\\s*(\\w+)\\..*", "\\1", Name))
+  return(data)
+}
+```
+
+
+### Lag dummy-data og initial split
+```{r}
+model_data <- create_dummy_data(data)
+t_train <- model_data$t_train
+t_test <- model_data$t_test
+```
+
+### OLS model
+```{r}
+ols_model <- linear_regression_model(t_train)
+  print("Trained OLS model:")
+  print(summary(ols_model))
+  print(alias(ols_model$fit))
+
+  ols_pred <- predict(ols_model, new_data = t_test) %>% pull(.pred)
+  
+```
+
+### LASSO model
+```{r}
+lso_model <- lasso_model(t_train)
+  print("Trained LASSO model:")
+  print(summary(lso_model))
+
+  lso_pred <- predict(lso_model, new_data = t_test) %>% pull(.pred)
+```
+
+### Random Forest model
+```{r}
+rf_model <- random_forest_model(t_train)
+  print("Trained random forest model:")
+  print(summary(rf_model))
+
+  rf_pred <- predict(rf_model, new_data = t_test) %>% pull(.pred)
+```
+
+### Gradient Boosting Tree model
+```{r}
+xgb_model <- xgboost_model(t_train)
+  print("Trained Gradient Boosting Tree model:")
+  print(summary(xgb_model))
+  
+  xgb_pred <- predict(xgb_model, new_data = t_test) %>% pull(.pred)
+```
+
+
+```{r}
+errs <- tibble(
+    Actual = t_test$Survived,
+    OLS_errors = Actual - ols_pred,
+    LSO_errors = Actual - lso_pred,
+    RF_errors = Actual - rf_pred,
+    XGB_errors = Actual - xgb_pred,
+  ) 
+```
+
+### Kalkulere MSE og Accuracy
+```{r}
+mse_ols <- mean(errs$OLS_errors^2)
+print(paste("MSE OLS: ", mse_ols))
+  
+mse_lso <- mean(errs$LSO_errors^2)
+print(paste("MSE LSO: ", mse_lso))
+  
+mse_rf <- mean(errs$RF_errors^2)
+print(paste("MSE RF: ", mse_rf))
+  
+mse_xgb <- mean(errs$XGB_errors^2)
+print(paste("MSE XGB: ", mse_xgb))
+  
+acc_ols =  sum((errs$OLS > 0.499) == errs$Actual) / length(errs$Actual)
+acc_lso = sum((errs$LSO > 0.499) == errs$Actual) / length(errs$Actual)
+acc_rf = sum((errs$RF > 0.499) == errs$Actual) / length(errs$Actual)
+acc_xgb = sum((errs$XGB > 0.499) == errs$Actual) / length(errs$Actual)
+  
+accuracy <- tibble(
+  osl = acc_ols,
+  lso = acc_lso,
+  rf = acc_rf,
+  xgb = acc_xgb
+)
+print(accuracy)
+```
+
+
+
+
+
+

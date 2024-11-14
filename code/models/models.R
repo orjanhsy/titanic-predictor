@@ -1,3 +1,4 @@
+# base (untuned) models
 linear_regression_model <- function(t_train) {
   model <- linear_reg() %>%
     fit(Survived ~., data = t_train)
@@ -27,11 +28,51 @@ xgboost_model <- function(t_train){
     fit(Survived ~., data = t_train)
 }
 
-tune <- function(model, t_train, type) {
-  spec <- switch(
-    type,
-    "lasso" = lasso_spec(tune())
+# return a specified (non fit) tuned model
+create_tuned_model <- function(model_type, t_train) {
+  # TODO: folds as it stands is only used here (for tuning hyperparams).
+  # If k-folds is helpful outside of tuning we move it out of this function
+  # and pass it as an argument to this function instead (the one currently named t_train).
+  folds <- vfold_cv(t_train, v = 10, repeats = 2)
+  
+  rec <- recipe(Survived ~., data = t_train)
+  
+  spec <- switch(model_type,
+    "lasso" = lasso_spec(tune()),
+    "random_forest" = rf_spec(mtry = tune(), min_n = tune()),
+    "xgboost" = xgb_spec(depth = tune(), learn_rate = tune(), loss_reduction = tune(), min_n = tune())
   )
+  
+  wf <- workflow() %>%
+    add_model(spec) %>%
+    add_recipe(rec)
+  
+  grid <- switch(model_type,
+    "lasso" = grid_regular(penalty(), levels = 50), # similar to lasso.R in machine learning II files
+    "random_forest" = grid_regular(
+      mtry(range = c(2, ncol(t_train) - 1)),
+      min_n(range = c(2, 10)),
+      levels = 50
+    ),
+    "xgboost" = grid_latin_hypercube(
+      tree_depth(range = c(3, 10)),
+      learn_rate(range = c(-2, -0.1)),
+      loss_reduction(range = c(0, 5)),
+      min_n(range = c(2, 20)),
+      size = 50 
+    )
+  )
+  
+  # metrics might have to be researched a bit as classification might not be a correct mode for our models
+  tuned <- tune_grid(
+    wf,
+    resamples = folds,
+    grid = grid,
+    metrics = metric_set(accuracy, roc_auc, f_meas) # needs to be changed
+  )
+  
+  best <- select_best(tuned, "rmse")
+  return (finalize_workflow(wf, best))
 }
 
 # -- Model specs, all parameters apart from trees are tunable. --
@@ -45,7 +86,6 @@ lasso_spec <- function(penalty) {
   return (
     linear_reg(
       engine = "glmnet",
-      mode = "classification",
       penalty = penalty,
       mixture = 1 # constant required for pure lasso
     ) 

@@ -95,6 +95,9 @@ main <- function() {
     theme_minimal()
   
   print(plot)
+  
+  tuned_lasso <- create_tuned_model("lasso", t_train)
+  print(paste("Tuned lasso model: ", summary(tuned_lasso)))
 }
 
 main()

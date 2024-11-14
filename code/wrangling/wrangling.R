@@ -42,7 +42,6 @@ handle_na_age <- function(data) {
 # this will result in a less accurate estimate of the persons age.
 getSibSpAge <- function(name, data) {
   last_name <- get_last_name(name)
-  # print(paste("Getting siblings for last name:", last_name))
   
   sib_sp <- filter(group_by(data, Name), get_last_name(Name) == last_name)
   
@@ -50,7 +49,7 @@ getSibSpAge <- function(name, data) {
   return (estimated_age)
 }
 
-# gets 
+# gets last
 get_last_name <- function(name) {
   last_name <- strsplit(name, ',')[[1]][1]
   return (last_name)

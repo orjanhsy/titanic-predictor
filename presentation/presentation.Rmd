@@ -3,20 +3,16 @@
 
 ### Introduksjon til oppgaven:
 
-##### I denne oppgaven skal vi bruke et dataset fra Kaggle.com med data om passagererne på Titanic da den sank natt til 15. april 1912 etter å ha truffet et isberg. Målet er å bruke denne daten til maskinlæring for å avgjøre om passagerer ville overlevd ulykken. 
+I denne oppgaven skal vi benytte et dataset fra Kaggle.com, som inneholder informasjon om passasjerene på Titanic – historiens mest kjente skipsforlis. Natt til 15. april 1912 sank Titanic etter å ha kollidert med et isfjell i Nord-Atlanteren. Datasetet gir oss informasjon om blant annet passasjerenes alder, kjønn, klasse, billettpris og avreisested.
+
+Målet med prosjektet er å anvende maskinlæring for å forutsi hvilke faktorer som hadde størst betydning for overlevelse. Vi skal trene en modell som kan forutsi om en gitt passasjer ville ha overlevd ulykken. Vi vil analysere variabler og deres innvirkning på overlevelse, og til slutt bygge en prediksjonsmodell som kan teste ulike hypotetiske scenarier.
+
+Prosjektet er skrevet i R Markdown, hvor vi benytter både R og ulike maskinlæringsbiblioteker for å gjennomføre analysen og prediksjonen. Gjennom prosjektet vil vi også vurdere modellens ytelse og mulige forbedringer for å øke prediksjonens presisjon.
 
 
-### Om data:
-####
-### Plot oversikt over data. Et glimpse f.eks.
-
-
-
-
-
-```{r, message=FALSE, echo=FALSE}
-# Dependencies
-dependencies <- c("tidyverse", "ggplot2", "readr", "here", "rsample", "parsnip")
+### Dependencies
+```{r, message=FALSE}
+dependencies <- c("tidyverse", "readr", "rsample", "tidymodels", "recipes", "glmnet", "ranger")
 for (pkg in dependencies) {
   if (!require(pkg, character.only = TRUE)) {
     install.packages(pkg)
@@ -25,15 +21,168 @@ for (pkg in dependencies) {
 }
 ```
 
+### Filer
 ```{r}
-# Importing the data
-path <- here::here("data", "Titanic-Dataset.csv")
-data <- read_csv(path)
-view(data)
+source("../code/wrangling/wrangling.R")
+source("../code/models/model_data.R")
+source("../code/models/models.R")
 ```
 
-#Corelation Passanger class and Cabin Number
-```{r}
-source("incomplete_data.R")
-class_cabin_correlation()
+### Data wrangling:
+Data wrangling er prosessen med å forberede, rense og strukturere data for analyse(Kilde). I dette prosjektet håndterer vi flere viktige aspekter ved datasettet for å sikre at det er klart for modellering. Her er hva vi gjør i koden:
+
+```{r, results='hide', message=FALSE}
+  data <- wrangle_data()
+  na_data <- wrangle_data(na = TRUE)
 ```
+
+#### 1. Behandling av manglende verdier (NA)
+
+##### Avreisehavn: 
+To av av passasjerene mangler avreisehavn. Siden begge disse passasjerene har reist med førsteklasse og betalt samme pris finner vi gjennomsnittsprisen for alle førsteklasse-reisenede for hver havn. Vi setter så avreisehavnen for de to passasjerene til den havnen som korrelerer best med prisen de har betalt.
+
+```{r, warning=FALSE, echo=FALSE, fig.align='center'}
+create_median_fare_plot <- function(median_fares, avarage_NA){
+  ggplot(median_fares, aes(x = Embarked, y = median_fare)) +
+    geom_hline(yintercept = avarage_NA, color = "red", linetype = "dashed", size = 1) +
+    geom_col(fill = "skyblue", color = "black") +
+    labs(title = "Median bilettpris for avreisedestinasjon",
+         x = "Avreisedestinasjon",
+         y = "Median Bilettpris") +
+    theme_minimal() +
+    theme(
+      plot.background = element_rect(color = "black", linewidth = 1),
+      plot.title = element_text(size = 16, face = "bold", hjust = 0.5),
+      axis.title = element_text(face = "bold"),
+      axis.text = element_text(face = "bold")
+    )
+}
+
+plot_median_fare <- function(){
+  median_fares <- get_median_fare_by_port(na_data)
+  avarage_na <- avarage_na_port(na_data)
+  plot <- create_median_fare_plot(median_fares, avarage_na)
+  print(plot)
+}
+
+run_plots <- function() {
+  plot_median_fare()
+}
+
+run_plots()
+```
+
+##### Alder
+For passasjerer med manglende alder, bruker vi en median-alder som standard, med en ekstra detalj for personer som reiste med søsken eller ektefelle (SibSp > 0), men ikke med barn eller foreldre (Parch == 0). I slike tilfeller bruker vi gjennomsnittsalderen for personer med samme etternavn (antatt å være søsken eller ektefeller). Dette gir mange av de reisende medianalder, men vi mener at ved å legge til denne behandlingen vil vi kunne ha noe sterkere antakelser om alderen til noen av passasjerene.
+
+#### 2. Ekstrahere tittel
+Vi ønsket å isolere tittelen fra navnet og legge den til i en egen kolonne. Vår teori er at dette kan gjøre dataen mer tilpasset maskinlæring ettersom tittelen kan være en indikator på faktorer som sivilstatus, alder eller sosioøkonomisk status. 
+
+#### 3. Fjerne irrelevante og manglende variabler
+For å redusere kompleksiteten i datasettet fjerner vi kolonnen Cabin ettersom den har svært mange i datasettet som ikke hadde denne variablen. Vi så først på muligeheten for at det var en tydelig sammenheng mellom Pclass og Cabin. Det var tydelig at passasjerer i Pclass 1 var konsentrert i A, B, C og D kabiner, men ettersom det er svært lite data på hvor de resterende reisende bodde ville vi ikke gjøre noen generalisering rundt dette. Name, Ticket og PassangerId er alle individuelle verdier som ikke vil ha noen påvikning på modellene så fi fjernet disse.
+
+
+Gjennom denne prosessen sørger vi for at datasettet er renere, mer konsistente og at de manglende variablene er håndtert. 
+
+
+
+### Kan vise helper-functions som ikke kan kjøres fra r-markdown siden wrangle_data() allerede gjør det. F.eks.
+
+```{r, reults='hide', message=FALSE}
+get_titles <- function(data){
+  data <- data %>%
+    mutate(Title = sub(".*,\\s*(\\w+)\\..*", "\\1", Name))
+  return(data)
+}
+```
+
+
+### Lag dummy-data og initial split
+```{r, results='hide', message=FALSE}
+model_data <- create_dummy_data(data)
+t_train <- model_data$t_train
+t_test <- model_data$t_test
+```
+
+### OLS model
+```{r, results='hide', warning=FALSE}
+ols_model <- linear_regression_model(t_train)
+  print("Trained OLS model:")
+  print(summary(ols_model))
+  print(alias(ols_model$fit))
+
+  ols_pred <- predict(ols_model, new_data = t_test) %>% pull(.pred)
+  
+```
+
+### LASSO model
+```{r, results='hide', warning=FALSE}
+lso_model <- lasso_model(t_train)
+  print("Trained LASSO model:")
+  print(summary(lso_model))
+
+  lso_pred <- predict(lso_model, new_data = t_test) %>% pull(.pred)
+```
+
+### Random Forest model
+```{r, results='hide', warning=FALSE}
+rf_model <- random_forest_model(t_train)
+  print("Trained random forest model:")
+  print(summary(rf_model))
+
+  rf_pred <- predict(rf_model, new_data = t_test) %>% pull(.pred)
+```
+
+### Gradient Boosting Tree model
+```{r, results='hide', warning=FALSE}
+xgb_model <- xgboost_model(t_train)
+  print("Trained Gradient Boosting Tree model:")
+  print(summary(xgb_model))
+  
+  xgb_pred <- predict(xgb_model, new_data = t_test) %>% pull(.pred)
+```
+
+
+```{r, results='hide', warning=FALSE}
+errs <- tibble(
+    Actual = t_test$Survived,
+    OLS_errors = Actual - ols_pred,
+    LSO_errors = Actual - lso_pred,
+    RF_errors = Actual - rf_pred,
+    XGB_errors = Actual - xgb_pred,
+  ) 
+```
+
+### Kalkulere MSE og Accuracy
+```{r, results='hide', warning=FALSE}
+mse_ols <- mean(errs$OLS_errors^2)
+print(paste("MSE OLS: ", mse_ols))
+  
+mse_lso <- mean(errs$LSO_errors^2)
+print(paste("MSE LSO: ", mse_lso))
+  
+mse_rf <- mean(errs$RF_errors^2)
+print(paste("MSE RF: ", mse_rf))
+  
+mse_xgb <- mean(errs$XGB_errors^2)
+print(paste("MSE XGB: ", mse_xgb))
+  
+acc_ols =  sum((errs$OLS > 0.499) == errs$Actual) / length(errs$Actual)
+acc_lso = sum((errs$LSO > 0.499) == errs$Actual) / length(errs$Actual)
+acc_rf = sum((errs$RF > 0.499) == errs$Actual) / length(errs$Actual)
+acc_xgb = sum((errs$XGB > 0.499) == errs$Actual) / length(errs$Actual)
+  
+accuracy <- tibble(
+  osl = acc_ols,
+  lso = acc_lso,
+  rf = acc_rf,
+  xgb = acc_xgb
+)
+print(accuracy)
+```
+
+
+
+
+
+

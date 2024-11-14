@@ -48,7 +48,7 @@ For å redusere kompleksiteten i datasettet fjerner vi kolonnen Cabin ettersom d
 
 Gjennom denne prosessen sørger vi for at datasettet er renere, mer konsistente og at de manglende variablene er håndtert. 
 
-```{r}
+```{r, results='hide', message=FALSE}
   data <- wrangle_data()
   na_data <- wrangle_data(na = TRUE)
 ```
@@ -57,7 +57,7 @@ Gjennom denne prosessen sørger vi for at datasettet er renere, mer konsistente 
 
 ### Kan vise helper-functions som ikke kan kjøres fra r-markdown siden wrangle_data() allerede gjør det. F.eks.
 
-```{r, eval=FALSE}
+```{r, reults='hide', message=FALSE}
 get_titles <- function(data){
   data <- data %>%
     mutate(Title = sub(".*,\\s*(\\w+)\\..*", "\\1", Name))
@@ -67,14 +67,14 @@ get_titles <- function(data){
 
 
 ### Lag dummy-data og initial split
-```{r}
+```{r, results='hide', message=FALSE}
 model_data <- create_dummy_data(data)
 t_train <- model_data$t_train
 t_test <- model_data$t_test
 ```
 
 ### OLS model
-```{r}
+```{r, results='hide', warning=FALSE}
 ols_model <- linear_regression_model(t_train)
   print("Trained OLS model:")
   print(summary(ols_model))
@@ -85,7 +85,7 @@ ols_model <- linear_regression_model(t_train)
 ```
 
 ### LASSO model
-```{r}
+```{r, results='hide', warning=FALSE}
 lso_model <- lasso_model(t_train)
   print("Trained LASSO model:")
   print(summary(lso_model))
@@ -94,7 +94,7 @@ lso_model <- lasso_model(t_train)
 ```
 
 ### Random Forest model
-```{r}
+```{r, results='hide', warning=FALSE}
 rf_model <- random_forest_model(t_train)
   print("Trained random forest model:")
   print(summary(rf_model))
@@ -103,7 +103,7 @@ rf_model <- random_forest_model(t_train)
 ```
 
 ### Gradient Boosting Tree model
-```{r}
+```{r, results='hide', warning=FALSE}
 xgb_model <- xgboost_model(t_train)
   print("Trained Gradient Boosting Tree model:")
   print(summary(xgb_model))
@@ -112,7 +112,7 @@ xgb_model <- xgboost_model(t_train)
 ```
 
 
-```{r}
+```{r, results='hide', warning=FALSE}
 errs <- tibble(
     Actual = t_test$Survived,
     OLS_errors = Actual - ols_pred,
@@ -123,7 +123,7 @@ errs <- tibble(
 ```
 
 ### Kalkulere MSE og Accuracy
-```{r}
+```{r, results='hide', warning=FALSE}
 mse_ols <- mean(errs$OLS_errors^2)
 print(paste("MSE OLS: ", mse_ols))
   

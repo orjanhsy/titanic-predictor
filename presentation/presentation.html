@@ -440,24 +440,8 @@ individuelle verdier som ikke vil ha noen påvikning på modellene så fi
 fjernet disse.</p>
 <p>Gjennom denne prosessen sørger vi for at datasettet er renere, mer
 konsistente og at de manglende variablene er håndtert.</p>
-<pre class="r"><code>  data &lt;- wrangle_data()</code></pre>
-<pre><code>## Rows: 891 Columns: 12
-## ── Column specification ────────────────────────────────────────────────────────
-## Delimiter: &quot;,&quot;
-## chr (5): Name, Sex, Ticket, Cabin, Embarked
-## dbl (7): PassengerId, Survived, Pclass, Age, SibSp, Parch, Fare
-## 
-## ℹ Use `spec()` to retrieve the full column specification for this data.
-## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.</code></pre>
-<pre class="r"><code>  na_data &lt;- wrangle_data(na = TRUE)</code></pre>
-<pre><code>## Rows: 891 Columns: 12
-## ── Column specification ────────────────────────────────────────────────────────
-## Delimiter: &quot;,&quot;
-## chr (5): Name, Sex, Ticket, Cabin, Embarked
-## dbl (7): PassengerId, Survived, Pclass, Age, SibSp, Parch, Fare
-## 
-## ℹ Use `spec()` to retrieve the full column specification for this data.
-## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.</code></pre>
+<pre class="r"><code>  data &lt;- wrangle_data()
+  na_data &lt;- wrangle_data(na = TRUE)</code></pre>
 </div>
 </div>
 <div id="kan-vise-helper-functions-som-ikke-kan-kjøres-fra-r-markdown-siden-wrangle_data-allerede-gjør-det.-f.eks." class="section level3">
@@ -471,116 +455,42 @@ wrangle_data() allerede gjør det. F.eks.</h3>
 </div>
 <div id="lag-dummy-data-og-initial-split" class="section level3">
 <h3>Lag dummy-data og initial split</h3>
-<pre class="r"><code>model_data &lt;- create_dummy_data(data)</code></pre>
-<pre><code>## # A tibble: 712 × 9
-##    Survived Pclass Sex      Age SibSp Parch  Fare Embarked Title 
-##       &lt;dbl&gt;  &lt;dbl&gt; &lt;fct&gt;  &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;fct&gt;    &lt;fct&gt; 
-##  1        0      1 male      71     0     0 34.7  C        Mr    
-##  2        0      3 male      28     0     0  7.23 C        Mr    
-##  3        0      3 male       4     4     2 31.3  S        Master
-##  4        0      3 male      26     0     0  7.90 S        Mr    
-##  5        0      3 male      61     0     0  6.24 S        Mr    
-##  6        0      3 male      19     0     0  8.16 S        Mr    
-##  7        0      3 male      28     8     2 69.6  S        Mr    
-##  8        0      1 male      28     0     0 26    S        Mr    
-##  9        1      1 male      25     1     0 91.1  C        Mr    
-## 10        1      3 female    26     1     0 15.5  Q        Miss  
-## # ℹ 702 more rows</code></pre>
-<pre class="r"><code>t_train &lt;- model_data$t_train
+<pre class="r"><code>model_data &lt;- create_dummy_data(data)
+t_train &lt;- model_data$t_train
 t_test &lt;- model_data$t_test</code></pre>
 </div>
 <div id="ols-model" class="section level3">
 <h3>OLS model</h3>
 <pre class="r"><code>ols_model &lt;- linear_regression_model(t_train)
-  print(&quot;Trained OLS model:&quot;)</code></pre>
-<pre><code>## [1] &quot;Trained OLS model:&quot;</code></pre>
-<pre class="r"><code>  print(summary(ols_model))</code></pre>
-<pre><code>##              Length Class      Mode
-## lvl           0     -none-     NULL
-## spec          6     linear_reg list
-## fit          12     lm         list
-## preproc       1     -none-     list
-## elapsed       1     -none-     list
-## censor_probs  0     -none-     list</code></pre>
-<pre class="r"><code>  print(alias(ols_model$fit))</code></pre>
-<pre><code>## Model :
-## Survived ~ Pclass + Age + SibSp + Parch + Fare + Sex_male + Embarked_Q + 
-##     Embarked_S + Title_Col + Title_Don + Title_Dr + Title_Jonkheer + 
-##     Title_Lady + Title_Major + Title_Master + Title_Miss + Title_Mlle + 
-##     Title_Mme + Title_Mr + Title_Mrs + Title_Ms + Title_Rev + 
-##     Title_Rothes..the.Countess..of..Lucy.Noel.Martha.Dyer.Edwards. + 
-##     Title_Sir
-## 
-## Complete :
-##           (Intercept) Pclass Age SibSp Parch Fare Sex_male Embarked_Q
-## Title_Don 0           0      0   0     0     0    0        0         
-## Title_Mme 0           0      0   0     0     0    0        0         
-## Title_Sir 0           0      0   0     0     0    0        0         
-##           Embarked_S Title_Col Title_Dr Title_Jonkheer Title_Lady Title_Major
-## Title_Don 0          0         0        0              0          0          
-## Title_Mme 0          0         0        0              0          0          
-## Title_Sir 0          0         0        0              0          0          
-##           Title_Master Title_Miss Title_Mlle Title_Mr Title_Mrs Title_Ms
-## Title_Don 0            0          0          0        0         0       
-## Title_Mme 0            0          0          0        0         0       
-## Title_Sir 0            0          0          0        0         0       
-##           Title_Rev
-## Title_Don 0        
-## Title_Mme 0        
-## Title_Sir 0        
-##           Title_Rothes..the.Countess..of..Lucy.Noel.Martha.Dyer.Edwards.
-## Title_Don 0                                                             
-## Title_Mme 0                                                             
-## Title_Sir 0</code></pre>
-<pre class="r"><code>  ols_pred &lt;- predict(ols_model, new_data = t_test) %&gt;% pull(.pred)</code></pre>
-<pre><code>## Warning in predict.lm(object = object$fit, newdata = new_data, type =
-## &quot;response&quot;, : prediction from rank-deficient fit; consider predict(.,
-## rankdeficient=&quot;NA&quot;)</code></pre>
+  print(&quot;Trained OLS model:&quot;)
+  print(summary(ols_model))
+  print(alias(ols_model$fit))
+
+  ols_pred &lt;- predict(ols_model, new_data = t_test) %&gt;% pull(.pred)</code></pre>
 </div>
 <div id="lasso-model" class="section level3">
 <h3>LASSO model</h3>
 <pre class="r"><code>lso_model &lt;- lasso_model(t_train)
-  print(&quot;Trained LASSO model:&quot;)</code></pre>
-<pre><code>## [1] &quot;Trained LASSO model:&quot;</code></pre>
-<pre class="r"><code>  print(summary(lso_model))</code></pre>
-<pre><code>##              Length Class      Mode
-## lvl           0     -none-     NULL
-## spec          8     linear_reg list
-## fit          12     elnet      list
-## preproc       4     -none-     list
-## elapsed       1     -none-     list
-## censor_probs  0     -none-     list</code></pre>
-<pre class="r"><code>  lso_pred &lt;- predict(lso_model, new_data = t_test) %&gt;% pull(.pred)</code></pre>
+  print(&quot;Trained LASSO model:&quot;)
+  print(summary(lso_model))
+
+  lso_pred &lt;- predict(lso_model, new_data = t_test) %&gt;% pull(.pred)</code></pre>
 </div>
 <div id="random-forest-model" class="section level3">
 <h3>Random Forest model</h3>
 <pre class="r"><code>rf_model &lt;- random_forest_model(t_train)
-  print(&quot;Trained random forest model:&quot;)</code></pre>
-<pre><code>## [1] &quot;Trained random forest model:&quot;</code></pre>
-<pre class="r"><code>  print(summary(rf_model))</code></pre>
-<pre><code>##              Length Class       Mode
-## lvl           0     -none-      NULL
-## spec          7     rand_forest list
-## fit          14     ranger      list
-## preproc       4     -none-      list
-## elapsed       1     -none-      list
-## censor_probs  0     -none-      list</code></pre>
-<pre class="r"><code>  rf_pred &lt;- predict(rf_model, new_data = t_test) %&gt;% pull(.pred)</code></pre>
+  print(&quot;Trained random forest model:&quot;)
+  print(summary(rf_model))
+
+  rf_pred &lt;- predict(rf_model, new_data = t_test) %&gt;% pull(.pred)</code></pre>
 </div>
 <div id="gradient-boosting-tree-model" class="section level3">
 <h3>Gradient Boosting Tree model</h3>
 <pre class="r"><code>xgb_model &lt;- xgboost_model(t_train)
-  print(&quot;Trained Gradient Boosting Tree model:&quot;)</code></pre>
-<pre><code>## [1] &quot;Trained Gradient Boosting Tree model:&quot;</code></pre>
-<pre class="r"><code>  print(summary(xgb_model))</code></pre>
-<pre><code>##              Length Class       Mode
-## lvl          0      -none-      NULL
-## spec         8      boost_tree  list
-## fit          9      xgb.Booster list
-## preproc      4      -none-      list
-## elapsed      1      -none-      list
-## censor_probs 0      -none-      list</code></pre>
-<pre class="r"><code>  xgb_pred &lt;- predict(xgb_model, new_data = t_test) %&gt;% pull(.pred)</code></pre>
+  print(&quot;Trained Gradient Boosting Tree model:&quot;)
+  print(summary(xgb_model))
+  
+  xgb_pred &lt;- predict(xgb_model, new_data = t_test) %&gt;% pull(.pred)</code></pre>
 <pre class="r"><code>errs &lt;- tibble(
     Actual = t_test$Survived,
     OLS_errors = Actual - ols_pred,
@@ -592,36 +502,29 @@ t_test &lt;- model_data$t_test</code></pre>
 <div id="kalkulere-mse-og-accuracy" class="section level3">
 <h3>Kalkulere MSE og Accuracy</h3>
 <pre class="r"><code>mse_ols &lt;- mean(errs$OLS_errors^2)
-print(paste(&quot;MSE OLS: &quot;, mse_ols))</code></pre>
-<pre><code>## [1] &quot;MSE OLS:  0.137610501892928&quot;</code></pre>
-<pre class="r"><code>mse_lso &lt;- mean(errs$LSO_errors^2)
-print(paste(&quot;MSE LSO: &quot;, mse_lso))</code></pre>
-<pre><code>## [1] &quot;MSE LSO:  0.164743484468407&quot;</code></pre>
-<pre class="r"><code>mse_rf &lt;- mean(errs$RF_errors^2)
-print(paste(&quot;MSE RF: &quot;, mse_rf))</code></pre>
-<pre><code>## [1] &quot;MSE RF:  0.131826047507965&quot;</code></pre>
-<pre class="r"><code>mse_xgb &lt;- mean(errs$XGB_errors^2)
-print(paste(&quot;MSE XGB: &quot;, mse_xgb))</code></pre>
-<pre><code>## [1] &quot;MSE XGB:  0.122347702175888&quot;</code></pre>
-<pre class="r"><code>acc_ols =  sum((errs$OLS &gt; 0.499) == errs$Actual) / length(errs$Actual)</code></pre>
-<pre><code>## Warning: Unknown or uninitialised column: `OLS`.</code></pre>
-<pre class="r"><code>acc_lso = sum((errs$LSO &gt; 0.499) == errs$Actual) / length(errs$Actual)</code></pre>
-<pre><code>## Warning: Unknown or uninitialised column: `LSO`.</code></pre>
-<pre class="r"><code>acc_rf = sum((errs$RF &gt; 0.499) == errs$Actual) / length(errs$Actual)</code></pre>
-<pre><code>## Warning: Unknown or uninitialised column: `RF`.</code></pre>
-<pre class="r"><code>acc_xgb = sum((errs$XGB &gt; 0.499) == errs$Actual) / length(errs$Actual)</code></pre>
-<pre><code>## Warning: Unknown or uninitialised column: `XGB`.</code></pre>
-<pre class="r"><code>accuracy &lt;- tibble(
+print(paste(&quot;MSE OLS: &quot;, mse_ols))
+  
+mse_lso &lt;- mean(errs$LSO_errors^2)
+print(paste(&quot;MSE LSO: &quot;, mse_lso))
+  
+mse_rf &lt;- mean(errs$RF_errors^2)
+print(paste(&quot;MSE RF: &quot;, mse_rf))
+  
+mse_xgb &lt;- mean(errs$XGB_errors^2)
+print(paste(&quot;MSE XGB: &quot;, mse_xgb))
+  
+acc_ols =  sum((errs$OLS &gt; 0.499) == errs$Actual) / length(errs$Actual)
+acc_lso = sum((errs$LSO &gt; 0.499) == errs$Actual) / length(errs$Actual)
+acc_rf = sum((errs$RF &gt; 0.499) == errs$Actual) / length(errs$Actual)
+acc_xgb = sum((errs$XGB &gt; 0.499) == errs$Actual) / length(errs$Actual)
+  
+accuracy &lt;- tibble(
   osl = acc_ols,
   lso = acc_lso,
   rf = acc_rf,
   xgb = acc_xgb
 )
 print(accuracy)</code></pre>
-<pre><code>## # A tibble: 1 × 4
-##     osl   lso    rf   xgb
-##   &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt;
-## 1     0     0     0     0</code></pre>
 </div>
 </div>
 

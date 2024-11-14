@@ -1,15 +1,17 @@
-# Dependencies
-source("code/wrangling/wrangling.R")
-
-#plotting for visualization
 create_median_fare_plot <- function(median_fares, avarage_NA){
   ggplot(median_fares, aes(x = Embarked, y = median_fare)) +
     geom_hline(yintercept = avarage_NA, color = "red", linetype = "dashed", size = 1) +
-    geom_col(fill = "skyblue") +
+    geom_col(fill = "skyblue", color = "black") +
     labs(title = "Median bilettpris for avreisedestinasjon",
          x = "Avreisedestinasjon",
          y = "Median Bilettpris") +
-    theme_minimal()
+    theme_minimal() +
+    theme(
+      plot.background = element_rect(color = "black", size = 1),
+      plot.title = element_text(size = 16, face = "bold", hjust = 0.5),
+      axis.title = element_text(face = "bold"),
+      axis.text = element_text(face = "bold")
+    )
 }
 
 plot_median_fare <- function(){

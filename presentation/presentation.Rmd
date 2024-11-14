@@ -31,10 +31,46 @@ source("../code/models/models.R")
 ### Data wrangling:
 Data wrangling er prosessen med å forberede, rense og strukturere data for analyse(Kilde). I dette prosjektet håndterer vi flere viktige aspekter ved datasettet for å sikre at det er klart for modellering. Her er hva vi gjør i koden:
 
+```{r, results='hide', message=FALSE}
+  data <- wrangle_data()
+  na_data <- wrangle_data(na = TRUE)
+```
+
 #### 1. Behandling av manglende verdier (NA)
 
 ##### Avreisehavn: 
 To av av passasjerene mangler avreisehavn. Siden begge disse passasjerene har reist med førsteklasse og betalt samme pris finner vi gjennomsnittsprisen for alle førsteklasse-reisenede for hver havn. Vi setter så avreisehavnen for de to passasjerene til den havnen som korrelerer best med prisen de har betalt.
+
+```{r, warning=FALSE, echo=FALSE, fig.align='center'}
+create_median_fare_plot <- function(median_fares, avarage_NA){
+  ggplot(median_fares, aes(x = Embarked, y = median_fare)) +
+    geom_hline(yintercept = avarage_NA, color = "red", linetype = "dashed", size = 1) +
+    geom_col(fill = "skyblue", color = "black") +
+    labs(title = "Median bilettpris for avreisedestinasjon",
+         x = "Avreisedestinasjon",
+         y = "Median Bilettpris") +
+    theme_minimal() +
+    theme(
+      plot.background = element_rect(color = "black", size = 1),
+      plot.title = element_text(size = 16, face = "bold", hjust = 0.5),
+      axis.title = element_text(face = "bold"),
+      axis.text = element_text(face = "bold")
+    )
+}
+
+plot_median_fare <- function(){
+  median_fares <- get_median_fare_by_port(na_data)
+  avarage_na <- avarage_na_port(na_data)
+  plot <- create_median_fare_plot(median_fares, avarage_na)
+  print(plot)
+}
+
+run_plots <- function() {
+  plot_median_fare()
+}
+
+run_plots()
+```
 
 ##### Alder
 For passasjerer med manglende alder, bruker vi en median-alder som standard, med en ekstra detalj for personer som reiste med søsken eller ektefelle (SibSp > 0), men ikke med barn eller foreldre (Parch == 0). I slike tilfeller bruker vi gjennomsnittsalderen for personer med samme etternavn (antatt å være søsken eller ektefeller). Dette gir mange av de reisende medianalder, men vi mener at ved å legge til denne behandlingen vil vi kunne ha noe sterkere antakelser om alderen til noen av passasjerene.
@@ -47,11 +83,6 @@ For å redusere kompleksiteten i datasettet fjerner vi kolonnen Cabin ettersom d
 
 
 Gjennom denne prosessen sørger vi for at datasettet er renere, mer konsistente og at de manglende variablene er håndtert. 
-
-```{r, results='hide', message=FALSE}
-  data <- wrangle_data()
-  na_data <- wrangle_data(na = TRUE)
-```
 
 
 

@@ -74,17 +74,15 @@ main <- function() {
   mse_xgb <- mean(errs$XGB_errors^2)
   print(paste("MSE XGB: ", mse_xgb))
   
-  acc_ols =  sum((errs$OLS > 0.499) == errs$Actual) / length(errs$Actual)
-  acc_lso = sum((errs$LSO > 0.499) == errs$Actual) / length(errs$Actual)
-  acc_rf = sum((errs$RF > 0.499) == errs$Actual) / length(errs$Actual)
-  acc_xgb = sum((errs$XGB > 0.499) == errs$Actual) / length(errs$Actual)
-  
-  accs <- tibble(
-    osl = acc_ols,
-    lso = acc_lso,
-    rf = acc_rf,
-    xgb = acc_xgb
-  )
+  accs <- errs %>%
+    summarize(
+      acc_ols = sum((ols_pred > 0.499) == Actual) / length(Actual),
+      acc_lso = sum((lso_pred > 0.499) == Actual) / length(Actual),
+      acc_rf = sum((rf_pred > 0.499) == Actual) / length(Actual),
+      acc_xgb = sum((xgb_pred > 0.499) == Actual) / length(Actual),
+    ) %>%
+    select(starts_with("acc")) 
+
   print(accs)
   
   plot <- errs %>%

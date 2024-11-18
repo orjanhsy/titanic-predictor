@@ -6,10 +6,17 @@ create_dummy_data <- function(data) {
   t_train <- training(split)
   t_test <- testing(split)
   
+  # Survived needs to be a factor in for the classification process.
+  t_train <- t_train %>%
+    mutate(Survived = as.factor(Survived))
+  t_test <- t_test %>%
+    mutate(Survived = as.factor(Survived))
+  
   print(t_train)
   
   dummies <- recipe(Survived ~ ., data = t_train) %>%
-    step_dummy(all_factor_predictors()) %>%
+    update_role(Survived, new_role = "outcome") %>%
+    step_dummy(all_factor_predictors(), -all_outcomes()) %>%
     prep(training = t_train)
   
   dummy_train <- bake(dummies, new_data = t_train)

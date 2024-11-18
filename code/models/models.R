@@ -1,17 +1,18 @@
 # base (untuned) models
 lasso_model <- function(t_train) {
-  lso <- linear_reg(
+  lso <- logistic_reg(
     penalty = 0.1,
     mixture = 1
   ) %>%
     set_engine("glmnet") %>%
+    set_mode("classification") %>%
     fit(Survived ~., data = t_train)
 }
 
 random_forest_model <- function(t_train) {
   rf <- rand_forest(
-    mode = "regression",
     engine = "ranger",
+    mode = "classification",
   ) %>%
     fit(Survived ~., data = t_train)
 }
@@ -19,7 +20,7 @@ random_forest_model <- function(t_train) {
 xgboost_model <- function(t_train){
   xgbm <- boost_tree() %>%
     set_engine("xgboost") %>%
-    set_mode("regression") %>%
+    set_mode("classification") %>%
     fit(Survived ~., data = t_train)
 }
 

@@ -28,60 +28,33 @@ main <- function() {
   print("Trained LASSO model:")
   print(summary(lso_model))
 
-  lso_pred <- predict(lso_model, new_data = t_test) %>% pull(.pred)
 
   # Random Forest 
   rf_model <- random_forest_model(t_train)
   print("Trained random forest model:")
   print(summary(rf_model))
 
-  rf_pred <- predict(rf_model, new_data = t_test) %>% pull(.pred)
-  
   # Gradient Boosting Tree
   xgb_model <- xgboost_model(t_train)
   print("Trained Gradient Boosting Tree model:")
   print(summary(xgb_model))
   
-  xgb_pred <- predict(xgb_model, new_data = t_test) %>% pull(.pred)
+  # predictions and accuracy
+  lso_pred <- predict(lso_model, new_data = t_test, type = "class")$.pred_class
+  rf_pred <- predict(rf_model, new_data = t_test, type = "class")$.pred_class
+  xgb_pred <- predict(xgb_model, new_data = t_test, type = "class")$.pred_class
   
-  errs <- tibble(
-    Actual = t_test$Survived,
-    LSO_errors = Actual - lso_pred,
-    RF_errors = Actual - rf_pred,
-    XGB_errors = Actual - xgb_pred,
-  ) 
-      
-  # mse
-  mse_lso <- mean(errs$LSO_errors^2)
-  print(paste("MSE LSO: ", mse_lso))
+  lso_acc <- mean(lso_pred == t_test$Survived)
+  rf_acc <- mean(rf_pred == t_test$Survived)
+  xgb_acc <- mean(xgb_pred == t_test$Survived)
   
-  mse_rf <- mean(errs$RF_errors^2)
-  print(paste("MSE RF: ", mse_rf))
+  accs <- tibble(
+    Model = c("LASSO", "RANDOM FOREST", "XGBOOST"),
+    Accuracy = c(lso_acc, rf_acc, xgb_acc)
+  )
   
-  mse_xgb <- mean(errs$XGB_errors^2)
-  print(paste("MSE XGB: ", mse_xgb))
-  
-  accs <- errs %>%
-    summarize(
-      acc_lso = sum((lso_pred > 0.499) == Actual) / length(Actual),
-      acc_rf = sum((rf_pred > 0.499) == Actual) / length(Actual),
-      acc_xgb = sum((xgb_pred > 0.499) == Actual) / length(Actual),
-    ) %>%
-    select(starts_with("acc")) 
-
+  print("Accuracies:") 
   print(accs)
-  
-  plot <- errs %>%
-    pivot_longer(cols = ends_with("errors"), names_to = "Model", values_to = "Errors") %>%
-    ggplot(aes(x = Errors, fill = Model)
-    ) +
-    geom_density(alpha = 0.5) +
-    theme_minimal()
-  
-  print(plot)
-  
-  tuned_lasso <- create_tuned_model("lasso", t_train)
-  print(paste("Tuned lasso model: ", summary(tuned_lasso)))
 }
 
 main()

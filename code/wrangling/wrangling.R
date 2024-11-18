@@ -66,7 +66,7 @@ get_titles <- function(data){
 
 wrangle_data <- function(na = FALSE) {
   # Importing the data
-  path <- here::here("data", "Titanic-Dataset.csv")
+  path <- paste(getwd(), "/data/", "Titanic-Dataset.csv", sep = '')
   data <- read_csv(path)
   
   if (na) return (data)

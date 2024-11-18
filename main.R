@@ -23,15 +23,6 @@ main <- function() {
   
   
   # -- Models --
-  # OLS 
-  # TODO: RANK DEFICIENCY warning, needs to be understood -> handled.
-  ols_model <- linear_regression_model(t_train)
-  print("Trained OLS model:")
-  print(summary(ols_model))
-  print(alias(ols_model$fit))
-
-  ols_pred <- predict(ols_model, new_data = t_test) %>% pull(.pred)
-  
   # LASSO
   lso_model <- lasso_model(t_train)
   print("Trained LASSO model:")
@@ -55,16 +46,12 @@ main <- function() {
   
   errs <- tibble(
     Actual = t_test$Survived,
-    OLS_errors = Actual - ols_pred,
     LSO_errors = Actual - lso_pred,
     RF_errors = Actual - rf_pred,
     XGB_errors = Actual - xgb_pred,
   ) 
       
   # mse
-  mse_ols <- mean(errs$OLS_errors^2)
-  print(paste("MSE OLS: ", mse_ols))
-  
   mse_lso <- mean(errs$LSO_errors^2)
   print(paste("MSE LSO: ", mse_lso))
   

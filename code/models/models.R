@@ -1,9 +1,4 @@
 # base (untuned) models
-linear_regression_model <- function(t_train) {
-  model <- linear_reg() %>%
-    fit(Survived ~., data = t_train)
-}
-
 lasso_model <- function(t_train) {
   lso <- linear_reg(
     penalty = 0.1,
@@ -76,12 +71,6 @@ create_tuned_model <- function(model_type, t_train) {
 }
 
 # -- Model specs, all parameters apart from trees are tunable. --
-
-# ols cannot be tuned as it has no hyperparams, default engine of linear_reg is lm.
-ols_spec <- function() {
-  return (linear_reg())
-}
-
 lasso_spec <- function(penalty) {
   return (
     linear_reg(

@@ -88,7 +88,7 @@ Gjennom denne prosessen sørger vi for at datasettet er renere, mer konsistente 
 
 ### Kan vise helper-functions som ikke kan kjøres fra r-markdown siden wrangle_data() allerede gjør det. F.eks.
 
-```{r, reults='hide', message=FALSE}
+```{r, reults='hide', message=FALSE, eval=FALSE}
 get_titles <- function(data){
   data <- data %>%
     mutate(Title = sub(".*,\\s*(\\w+)\\..*", "\\1", Name))

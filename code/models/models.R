@@ -29,23 +29,16 @@ create_tuned_model <- function(model_type, t_train) {
   # TODO: folds as it stands is only used here (for tuning hyperparams).
   # If k-folds is helpful outside of tuning we move it out of this function
   # and pass it as an argument to this function instead (the one currently named t_train).
-  folds <- vfold_cv(t_train, v = 2) # insanely slow for high  repeats and v
+  folds <- vfold_cv(t_train, v = 2) # insanely slow for high repeats and v
   print("COMPLETED FOLDING")
   
   rec <- recipe(Survived ~., data = t_train) 
   print("COMPLETED RECIPE")
   
   spec <- switch(model_type, 
-    "lasso" = lasso_spec(penalty = tune()),
-    "random_forest" = rand_forest(
-      mtry = tune(), 
-      min_n = tune(),
-      trees = 500,
-    ) %>%
-      set_mode("classification") %>%
-      set_engine("ranger")
-    ,
-    "xgboost" = xgb_spec(depth = tune(), learn_rate = tune(), loss_reduction = tune(), min_n = tune())
+    "lasso" = lso_spec(),
+    "random_forest" = rf_spec(),
+    "xgboost" = xgb_spec()
   )
   print("FOUND SPEC")
   
@@ -97,23 +90,25 @@ create_tuned_model <- function(model_type, t_train) {
   return (model)
 }
 
-# -- Model specs, all parameters apart from trees are tunable. --
-lasso_spec <- function(penalty) {
+# -- Model specs --
+# Passing tune() as an argument to the functions does not work
+# therefore they have no params
+lasso_spec <- function() {
   return (
     logistic_reg(
       engine = "glmnet",
       mode = "classification",
-      penalty = penalty,
+      penalty = tune(),
       mixture = 1 # constant required for pure lasso
     ) 
   )
 }
 
-rf_spec <- function(mtry = NULL, min_n = NULL) {
+rf_spec <- function() {
   return (
     rand_forest(
-      mtry = mtry, 
-      min_n = min_n,
+      mtry = tune(), 
+      min_n = tune(),
       trees = 500,
     ) %>%
       set_mode("classification") %>%
@@ -121,16 +116,16 @@ rf_spec <- function(mtry = NULL, min_n = NULL) {
   )
 }
 
-xgb_spec <- function(depth = NULL, learn_rate = NULL, loss_reduction = NULL, min_n = NULL) {
+xgb_spec <- function() {
   return (
     boost_tree(
       engine = "xgboost",
       mode = "classification", 
       trees = 500,
-      tree_depth = depth,
-      learn_rate = learn_rate,
-      loss_reduction = loss_reduction,
-      min_n = min_n
+      tree_depth = tune(),
+      learn_rate = tune(),
+      loss_reduction = tune(),
+      min_n = tune()
     )
   )
 }

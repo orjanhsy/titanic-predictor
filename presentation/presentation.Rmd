@@ -1,3 +1,8 @@
+---
+output:
+  html_document: default
+  pdf_document: default
+---
 # Prosjekt Titanic overlevelse
 ### Tobias Windingstad og Ørjan Hammer
 
@@ -110,17 +115,6 @@ For å redusere kompleksiteten i datasettet fjerner vi kolonnen Cabin ettersom d
 
 Gjennom denne prosessen sørger vi for at datasettet er renere, mer konsistente og at de manglende variablene er håndtert.
 
-
-
-### Kan vise helper-functions som ikke kan kjøres fra r-markdown siden wrangle_data() allerede gjør det. F.eks.
-
-```{r, reults='hide', message=FALSE, eval=FALSE}
-get_titles <- function(data){
-  data <- data %>%
-    mutate(Title = sub(".*,\\s*(\\w+)\\..*", "\\1", Name))
-  return(data)
-}
-```
 
 
 ### Lag dummy-data og initial split

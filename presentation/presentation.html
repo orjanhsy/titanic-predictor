@@ -468,15 +468,6 @@ noen påvirkning på modellene så vi fjernet disse.</p>
 <p>Gjennom denne prosessen sørger vi for at datasettet er renere, mer
 konsistente og at de manglende variablene er håndtert.</p>
 </div>
-<div id="kan-vise-helper-functions-som-ikke-kan-kjøres-fra-r-markdown-siden-wrangle_data-allerede-gjør-det.-f.eks." class="section level3">
-<h3>Kan vise helper-functions som ikke kan kjøres fra r-markdown siden
-wrangle_data() allerede gjør det. F.eks.</h3>
-<pre class="r"><code>get_titles &lt;- function(data){
-  data &lt;- data %&gt;%
-    mutate(Title = sub(&quot;.*,\\s*(\\w+)\\..*&quot;, &quot;\\1&quot;, Name))
-  return(data)
-}</code></pre>
-</div>
 <div id="lag-dummy-data-og-initial-split" class="section level3">
 <h3>Lag dummy-data og initial split</h3>
 <pre class="r"><code>model_data &lt;- create_dummy_data(data)

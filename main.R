@@ -63,7 +63,6 @@ main <- function() {
   
   accs <- errs %>%
     summarize(
-      acc_ols = sum((ols_pred > 0.499) == Actual) / length(Actual),
       acc_lso = sum((lso_pred > 0.499) == Actual) / length(Actual),
       acc_rf = sum((rf_pred > 0.499) == Actual) / length(Actual),
       acc_xgb = sum((xgb_pred > 0.499) == Actual) / length(Actual),

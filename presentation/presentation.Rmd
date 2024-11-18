@@ -3,11 +3,12 @@
 
 ### Introduksjon til oppgaven:
 
-I denne oppgaven skal vi benytte et dataset fra Kaggle.com, som inneholder informasjon om passasjerene på Titanic – historiens mest kjente skipsforlis. Natt til 15. april 1912 sank Titanic etter å ha kollidert med et isfjell i Nord-Atlanteren. Datasetet gir oss informasjon om blant annet passasjerenes alder, kjønn, klasse, billettpris og avreisested.
+I denne oppgaven skal vi benytte et datasett fra Kaggle.com, som inneholder informasjon om passasjerene på Titanic – historiens mest kjente skipsforlis. Natt til 15. april 1912 sank Titanic etter å ha kollidert med et isfjell i Nord-Atlanteren. Datasettet gir oss informasjon om blant annet passasjerenes alder, kjønn, klasse, billettpris og avreisested.
 
 Målet med prosjektet er å anvende maskinlæring for å forutsi hvilke faktorer som hadde størst betydning for overlevelse. Vi skal trene en modell som kan forutsi om en gitt passasjer ville ha overlevd ulykken. Vi vil analysere variabler og deres innvirkning på overlevelse, og til slutt bygge en prediksjonsmodell som kan teste ulike hypotetiske scenarier.
 
 Prosjektet er skrevet i R Markdown, hvor vi benytter både R og ulike maskinlæringsbiblioteker for å gjennomføre analysen og prediksjonen. Gjennom prosjektet vil vi også vurdere modellens ytelse og mulige forbedringer for å øke prediksjonens presisjon.
+
 
 
 ### Dependencies
@@ -29,7 +30,7 @@ source("../code/models/models.R")
 ```
 
 ### Data wrangling:
-Data wrangling er prosessen med å forberede, rense og strukturere data for analyse(Kilde). I dette prosjektet håndterer vi flere viktige aspekter ved datasettet for å sikre at det er klart for modellering. Her er hva vi gjør i koden:
+Data wrangling er prosessen med å forberede, rense og strukturere data for analyse (Kilde). I dette prosjektet håndterer vi flere viktige aspekter ved datasettet for å sikre at det er klart for modellering. Her er hva vi gjør i koden:
 
 ```{r, results='hide', message=FALSE}
   data <- wrangle_data()
@@ -39,7 +40,7 @@ Data wrangling er prosessen med å forberede, rense og strukturere data for anal
 #### 1. Behandling av manglende verdier (NA)
 
 ##### Avreisehavn: 
-To av av passasjerene mangler avreisehavn. Siden begge disse passasjerene har reist med førsteklasse og betalt samme pris finner vi gjennomsnittsprisen for alle førsteklasse-reisenede for hver havn. Vi setter så avreisehavnen for de to passasjerene til den havnen som korrelerer best med prisen de har betalt.
+To av passasjerene mangler avreisehavn. Siden begge disse passasjerene har reist med førsteklasse og betalt samme pris finner vi gjennomsnittsprisen for alle førsteklasse-reisende for hver havn. Vi setter så avreisehavnen for de to passasjerene til den havnen som korrelerer best med prisen de har betalt.
 
 ```{r, warning=FALSE, echo=FALSE, fig.align='center'}
 create_median_fare_plot <- function(median_fares, avarage_NA){
@@ -72,17 +73,42 @@ run_plots <- function() {
 run_plots()
 ```
 
+# 
 ##### Alder
 For passasjerer med manglende alder, bruker vi en median-alder som standard, med en ekstra detalj for personer som reiste med søsken eller ektefelle (SibSp > 0), men ikke med barn eller foreldre (Parch == 0). I slike tilfeller bruker vi gjennomsnittsalderen for personer med samme etternavn (antatt å være søsken eller ektefeller). Dette gir mange av de reisende medianalder, men vi mener at ved å legge til denne behandlingen vil vi kunne ha noe sterkere antakelser om alderen til noen av passasjerene.
+
+```{r, reults='hide', message=FALSE, eval=FALSE}
+handle_na_age <- function(data) {
+  median_age <- median(data$Age, na.rm = TRUE)
+  data <- data %>%
+    mutate(Age = ifelse(is.na(Age), ifelse((SibSp > 0) & (Parch == 0), getSibSpAge(Name, data), median_age), Age))
+  return(data)
+}
+
+getSibSpAge <- function(name, data) {
+  last_name <- get_last_name(name)
+  
+  sib_sp <- filter(group_by(data, Name), get_last_name(Name) == last_name)
+  
+  estimated_age <- round(mean(sib_sp$Age, na.rm = TRUE))
+  return (estimated_age)
+}
+
+get_last_name <- function(name) {
+  last_name <- strsplit(name, ',')[[1]][1]
+  return (last_name)
+}
+```
+
 
 #### 2. Ekstrahere tittel
 Vi ønsket å isolere tittelen fra navnet og legge den til i en egen kolonne. Vår teori er at dette kan gjøre dataen mer tilpasset maskinlæring ettersom tittelen kan være en indikator på faktorer som sivilstatus, alder eller sosioøkonomisk status. 
 
 #### 3. Fjerne irrelevante og manglende variabler
-For å redusere kompleksiteten i datasettet fjerner vi kolonnen Cabin ettersom den har svært mange i datasettet som ikke hadde denne variablen. Vi så først på muligeheten for at det var en tydelig sammenheng mellom Pclass og Cabin. Det var tydelig at passasjerer i Pclass 1 var konsentrert i A, B, C og D kabiner, men ettersom det er svært lite data på hvor de resterende reisende bodde ville vi ikke gjøre noen generalisering rundt dette. Name, Ticket og PassangerId er alle individuelle verdier som ikke vil ha noen påvikning på modellene så fi fjernet disse.
+For å redusere kompleksiteten i datasettet fjerner vi kolonnen Cabin ettersom den har svært mange i datasettet som ikke hadde denne variabelen. Vi så først på muligheten for at det var en tydelig sammenheng mellom Pclass og Cabin ved bruk av en Chi-Squared. Det var tydelig at passasjerer i Pclass 1 var konsentrert i A, B, C og D kabiner, men ettersom det er svært lite data på hvor de resterende reisende bodde, ville vi ikke gjøre noen generalisering rundt dette. Name, Ticket og PassangerId er alle individuelle verdier som ikke vil ha noen påvirkning på modellene så vi fjernet disse.
 
 
-Gjennom denne prosessen sørger vi for at datasettet er renere, mer konsistente og at de manglende variablene er håndtert. 
+Gjennom denne prosessen sørger vi for at datasettet er renere, mer konsistente og at de manglende variablene er håndtert.
 
 
 

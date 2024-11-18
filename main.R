@@ -55,6 +55,9 @@ main <- function() {
   
   print("Accuracies:") 
   print(accs)
+  
+  # Tuned models
+  tuned_lasso <- create_tuned_model("random_forest", t_train)
 }
 
 main()

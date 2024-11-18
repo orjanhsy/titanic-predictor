@@ -57,7 +57,11 @@ main <- function() {
   print(accs)
   
   # Tuned models
-  tuned_lasso <- create_tuned_model("random_forest", t_train)
+  tuned_lasso <- create_tuned_model("lasso", t_train)
+  tuned_rf <- create_tuned_model("random_forest", t_train)
+  tuned_xgb <- create_tuned_model("xgboost", t_train)
+  print("Completed tuning!")
 }
 
 main()
+

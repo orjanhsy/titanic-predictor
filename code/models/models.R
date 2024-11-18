@@ -30,23 +30,18 @@ create_tuned_model <- function(model_type, t_train) {
   # If k-folds is helpful outside of tuning we move it out of this function
   # and pass it as an argument to this function instead (the one currently named t_train).
   folds <- vfold_cv(t_train, v = 2) # insanely slow for high repeats and v
-  print("COMPLETED FOLDING")
   
   rec <- recipe(Survived ~., data = t_train) 
-  print("COMPLETED RECIPE")
   
   spec <- switch(model_type, 
     "lasso" = lso_spec(),
     "random_forest" = rf_spec(),
     "xgboost" = xgb_spec()
   )
-  print("FOUND SPEC")
   
   wf <- workflow() %>%
     add_recipe(rec) %>%
     add_model(spec) 
-  print("CREATED WORKFLOW")
-  print(wf)
   
   grid <- switch(model_type,
     "lasso" = grid_regular(
@@ -58,34 +53,29 @@ create_tuned_model <- function(model_type, t_train) {
       min_n(range = c(2, 10)),
       levels = 5
     ),
-    "xgboost" = grid_latin_hypercube(
-      tree_depth(range = c(3, 10)),
-      learn_rate(range = c(0.001, 0.1)),
-      loss_reduction(range = c(0, 5)),
-      min_n(range = c(2, 20)),
+    "xgboost" = grid_space_filling(
+      parameters(
+        tree_depth(range = c(3, 10)),
+        learn_rate(range = c(0.001, 0.1)),
+        loss_reduction(range = c(0, 5)),
+        min_n(range = c(2, 20))
+      ),
       size = 5 
     )
   )
-  print("CREATED GRID")
-  print(grid)
   
-  print("Starting tuning process .. ")
-  # metrics might have to be researched a bit as classification might not be a correct mode for our models
   tuned <- tune_grid(
     wf,
     resamples = folds,
     grid = grid
   )
-  print("TUNED GRID")
-  print(tuned)
   
   best <- select_best(tuned, metric = "accuracy")
-  print("FOUND BEST")
-  print(best)
   
   model <- finalize_workflow(wf, best)
-  print("Finalized model") 
   print(model)
+  
+  print(paste("Completed tuning", model_type))
   
   return (model)
 }
@@ -93,7 +83,7 @@ create_tuned_model <- function(model_type, t_train) {
 # -- Model specs --
 # Passing tune() as an argument to the functions does not work
 # therefore they have no params
-lasso_spec <- function() {
+lso_spec <- function() {
   return (
     logistic_reg(
       engine = "glmnet",

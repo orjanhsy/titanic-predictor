@@ -24,9 +24,7 @@ main <- function() {
   
   view(t_train)
   
-  
-  
-  
+
   # Models 
   lso_model <- lasso_model(t_train)
   rf_model <- random_forest_model(t_train)

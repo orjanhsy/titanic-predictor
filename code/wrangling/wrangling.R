@@ -1,3 +1,5 @@
+library(ggplot2)
+
 
 #get avarage price for NA port
 avarage_na_port <- function(data){
@@ -55,12 +57,48 @@ get_last_name <- function(name) {
   return (last_name)
 }
 
-
-#function that extracts title and adds a new "Title" column
-get_titles <- function(data){
+#Check for visualization
+check_titles <- function(data){
   data <- data %>%
     mutate(Title = sub(".*,\\s*(\\w+)\\..*", "\\1", Name))
   return(data)
+}
+#Extract title and adds a new "Title" column
+get_titles <- function(data){
+  data <- data %>%
+    mutate(Title = sub(".*,\\s*(\\w+)\\..*", "\\1", Name))
+  
+  # Count occurrences of each Title
+  title_counts <- data %>%
+    group_by(Title) %>%
+    tally() %>%
+    filter(n <= 10) %>%
+    pull(Title)
+  
+  # Replace titles with 10 or fewer occurrences with "Other"
+  data <- data %>%
+    mutate(Title = ifelse(Title %in% title_counts, "Other", Title))
+  
+  return(data)
+}
+
+# Plot title distribution
+plot_title_distribution <- function(data) {
+  # Plot the distribution of titles
+  plot <- ggplot(data, aes(x = Title)) +
+    geom_bar(fill = "steelblue", color = "black") +
+    theme_minimal() +
+    labs(title = "Distribution of Titles", x = "Title", y = "Count") +
+    theme(axis.text.x = element_text(angle = 45, hjust = 1)) +  # Rotate x-axis labels for readability
+    geom_text(
+      stat = "count", 
+      aes(label = ..count..), 
+      vjust = -0.5,  # Adjust vertical position of the labels
+      size = 3  # Adjust label size
+    )
+  
+  # Print the plot
+  print(plot)
 }
 
 
@@ -70,6 +108,9 @@ wrangle_data <- function(na = FALSE) {
   data <- read_csv(path)
   
   if (na) return (data)
+  
+  check <- check_titles(data)
+  plot_title_distribution(check)
   
   data <- handle_na_age(data)
   data <- get_titles(data)

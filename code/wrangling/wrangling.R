@@ -21,7 +21,7 @@ set_port <- function(data){
   
   closest_port <- median_fares_for_port %>%
     mutate(diff = abs(median_fare - mean_fare_NA)) %>%
-    slice(which.min(diff)) %>%
+    filter(diff == min(diff)) %>%
     pull(Embarked)
     
   data <- data %>%

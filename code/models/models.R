@@ -29,7 +29,7 @@ create_tuned_model <- function(model_type, t_train) {
   # TODO: folds as it stands is only used here (for tuning hyperparams).
   # If k-folds is helpful outside of tuning we move it out of this function
   # and pass it as an argument to this function instead (the one currently named t_train).
-  folds <- vfold_cv(t_train, v = 2) # insanely slow for high repeats and v
+  folds <- vfold_cv(t_train, v = 10) # insanely slow for high repeats and v
   
   rec <- recipe(Survived ~., data = t_train) 
   
@@ -46,12 +46,12 @@ create_tuned_model <- function(model_type, t_train) {
   grid <- switch(model_type,
     "lasso" = grid_regular(
       penalty(), 
-      levels = 5
+      levels = 30
     ), 
     "random_forest" = grid_regular(
       mtry(range = c(2, ncol(t_train) - 1)),
       min_n(range = c(2, 10)),
-      levels = 5
+      levels = 10
     ),
     "xgboost" = grid_space_filling(
       parameters(
@@ -60,7 +60,7 @@ create_tuned_model <- function(model_type, t_train) {
         loss_reduction(range = c(0, 5)),
         min_n(range = c(2, 20))
       ),
-      size = 5 
+      size = 20 
     )
   )
   
@@ -72,7 +72,7 @@ create_tuned_model <- function(model_type, t_train) {
   
   best <- select_best(tuned, metric = "accuracy")
   
-  model <- finalize_workflow(wf, best)
+  model <- finalize_model(spec, best)
   print(model)
   
   print(paste("Completed tuning", model_type))

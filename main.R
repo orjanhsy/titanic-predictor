@@ -16,10 +16,15 @@ main <- function() {
   # prepare data for models
   data <- wrangle_data()
   na_data <- wrangle_data(na = TRUE)
-  
+
   model_data <- create_dummy_data(data)
+  
   t_train <- model_data$t_train
   t_test <- model_data$t_test
+  
+  view(t_train)
+  
+  
   
   
   # Models 

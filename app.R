@@ -30,7 +30,7 @@ ui <- fluidPage(
       numericInput(
         inputId = "age",
         label = "Oppgi alder:",
-        value = 30,
+        value = 20,
         min = 1,
         max = 120
       ),

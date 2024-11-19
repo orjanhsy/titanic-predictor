@@ -23,78 +23,45 @@ main <- function() {
   
   
   # -- Models --
-  # OLS 
-  # TODO: RANK DEFICIENCY warning, needs to be understood -> handled.
-  ols_model <- linear_regression_model(t_train)
-  print("Trained OLS model:")
-  print(summary(ols_model))
-  print(alias(ols_model$fit))
-
-  ols_pred <- predict(ols_model, new_data = t_test) %>% pull(.pred)
-  
   # LASSO
   lso_model <- lasso_model(t_train)
   print("Trained LASSO model:")
   print(summary(lso_model))
 
-  lso_pred <- predict(lso_model, new_data = t_test) %>% pull(.pred)
 
   # Random Forest 
   rf_model <- random_forest_model(t_train)
   print("Trained random forest model:")
   print(summary(rf_model))
 
-  rf_pred <- predict(rf_model, new_data = t_test) %>% pull(.pred)
-  
   # Gradient Boosting Tree
   xgb_model <- xgboost_model(t_train)
   print("Trained Gradient Boosting Tree model:")
   print(summary(xgb_model))
   
-  xgb_pred <- predict(xgb_model, new_data = t_test) %>% pull(.pred)
+  # predictions and accuracy
+  lso_pred <- predict(lso_model, new_data = t_test, type = "class")$.pred_class
+  rf_pred <- predict(rf_model, new_data = t_test, type = "class")$.pred_class
+  xgb_pred <- predict(xgb_model, new_data = t_test, type = "class")$.pred_class
   
-  errs <- tibble(
-    Actual = t_test$Survived,
-    OLS_errors = Actual - ols_pred,
-    LSO_errors = Actual - lso_pred,
-    RF_errors = Actual - rf_pred,
-    XGB_errors = Actual - xgb_pred,
-  ) 
-      
-  # mse
-  mse_ols <- mean(errs$OLS_errors^2)
-  print(paste("MSE OLS: ", mse_ols))
-  
-  mse_lso <- mean(errs$LSO_errors^2)
-  print(paste("MSE LSO: ", mse_lso))
-  
-  mse_rf <- mean(errs$RF_errors^2)
-  print(paste("MSE RF: ", mse_rf))
-  
-  mse_xgb <- mean(errs$XGB_errors^2)
-  print(paste("MSE XGB: ", mse_xgb))
-  
-  acc_ols =  sum((errs$OLS > 0.499) == errs$Actual) / length(errs$Actual)
-  acc_lso = sum((errs$LSO > 0.499) == errs$Actual) / length(errs$Actual)
-  acc_rf = sum((errs$RF > 0.499) == errs$Actual) / length(errs$Actual)
-  acc_xgb = sum((errs$XGB > 0.499) == errs$Actual) / length(errs$Actual)
+  lso_acc <- mean(lso_pred == t_test$Survived)
+  rf_acc <- mean(rf_pred == t_test$Survived)
+  xgb_acc <- mean(xgb_pred == t_test$Survived)
   
   accs <- tibble(
-    osl = acc_ols,
-    lso = acc_lso,
-    rf = acc_rf,
-    xgb = acc_xgb
+    Model = c("LASSO", "RANDOM FOREST", "XGBOOST"),
+    Accuracy = c(lso_acc, rf_acc, xgb_acc)
   )
+  
+  print("Accuracies:") 
   print(accs)
   
-  plot <- errs %>%
-    pivot_longer(cols = ends_with("errors"), names_to = "Model", values_to = "Errors") %>%
-    ggplot(aes(x = Errors, fill = Model)
-    ) +
-    geom_density(alpha = 0.5) +
-    theme_minimal()
-  
-  print(plot)
+  # Tuned models
+  tuned_lasso <- create_tuned_model("lasso", t_train)
+  tuned_rf <- create_tuned_model("random_forest", t_train)
+  tuned_xgb <- create_tuned_model("xgboost", t_train)
+  print("Completed tuning!")
 }
 
 main()
+

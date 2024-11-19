@@ -1,21 +1,18 @@
-linear_regression_model <- function(t_train) {
-  model <- linear_reg() %>%
-    fit(Survived ~., data = t_train)
-}
-
+# base (untuned) models
 lasso_model <- function(t_train) {
-  lso <- linear_reg(
+  lso <- logistic_reg(
     penalty = 0.1,
     mixture = 1
   ) %>%
     set_engine("glmnet") %>%
+    set_mode("classification") %>%
     fit(Survived ~., data = t_train)
 }
 
 random_forest_model <- function(t_train) {
   rf <- rand_forest(
-    mode = "regression",
     engine = "ranger",
+    mode = "classification",
   ) %>%
     fit(Survived ~., data = t_train)
 }
@@ -23,6 +20,109 @@ random_forest_model <- function(t_train) {
 xgboost_model <- function(t_train){
   xgbm <- boost_tree() %>%
     set_engine("xgboost") %>%
-    set_mode("regression") %>%
+    set_mode("classification") %>%
     fit(Survived ~., data = t_train)
 }
+
+# return a specified (non fit) tuned model
+create_tuned_model <- function(model_type, t_train) {
+  # TODO: folds as it stands is only used here (for tuning hyperparams).
+  # If k-folds is helpful outside of tuning we move it out of this function
+  # and pass it as an argument to this function instead (the one currently named t_train).
+  folds <- vfold_cv(t_train, v = 2) # insanely slow for high repeats and v
+  
+  rec <- recipe(Survived ~., data = t_train) 
+  
+  spec <- switch(model_type, 
+    "lasso" = lso_spec(),
+    "random_forest" = rf_spec(),
+    "xgboost" = xgb_spec()
+  )
+  
+  wf <- workflow() %>%
+    add_recipe(rec) %>%
+    add_model(spec) 
+  
+  grid <- switch(model_type,
+    "lasso" = grid_regular(
+      penalty(), 
+      levels = 5
+    ), 
+    "random_forest" = grid_regular(
+      mtry(range = c(2, ncol(t_train) - 1)),
+      min_n(range = c(2, 10)),
+      levels = 5
+    ),
+    "xgboost" = grid_space_filling(
+      parameters(
+        tree_depth(range = c(3, 10)),
+        learn_rate(range = c(0.001, 0.1)),
+        loss_reduction(range = c(0, 5)),
+        min_n(range = c(2, 20))
+      ),
+      size = 5 
+    )
+  )
+  
+  tuned <- tune_grid(
+    wf,
+    resamples = folds,
+    grid = grid
+  )
+  
+  best <- select_best(tuned, metric = "accuracy")
+  
+  model <- finalize_workflow(wf, best)
+  print(model)
+  
+  print(paste("Completed tuning", model_type))
+  
+  return (model)
+}
+
+# -- Model specs --
+# Passing tune() as an argument to the functions does not work
+# therefore they have no params
+lso_spec <- function() {
+  return (
+    logistic_reg(
+      engine = "glmnet",
+      mode = "classification",
+      penalty = tune(),
+      mixture = 1 # constant required for pure lasso
+    ) 
+  )
+}
+
+rf_spec <- function() {
+  return (
+    rand_forest(
+      mtry = tune(), 
+      min_n = tune(),
+      trees = 500,
+    ) %>%
+      set_mode("classification") %>%
+      set_engine("ranger")
+  )
+}
+
+xgb_spec <- function() {
+  return (
+    boost_tree(
+      engine = "xgboost",
+      mode = "classification", 
+      trees = 500,
+      tree_depth = tune(),
+      learn_rate = tune(),
+      loss_reduction = tune(),
+      min_n = tune()
+    )
+  )
+}
+
+
+
+
+
+
+

@@ -16,6 +16,10 @@ main <- function() {
   # prepare data for models
   data <- wrangle_data()
   na_data <- wrangle_data(na = TRUE)
+  
+  #See average price for UI - Should make plot
+  avg_price_per <- average_price_by_port_class(data)
+  print(avg_price_per)
 
   model_data <- create_dummy_data(data)
   

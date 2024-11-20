@@ -101,12 +101,11 @@ ui <- fluidPage(
     ),
     
     mainPanel(
-      h3("Fyll ut informasjonen for å kjøpe billett."),
+      h3(textOutput("info_header")),
       br(),
       textOutput("confirmation"),
       br(),
-      h4("Din billettinformasjon:"),
-      tableOutput("tibble_output")
+      uiOutput("ticket_info")
     )
   )
 )
@@ -155,11 +154,20 @@ server <- function(input, output) {
     )
   })
   
-  # Display confirmation message
-  output$confirmation <- renderText({
+  output$info_header <- renderText({
     if (input$submit_btn > 0) {
-      paste ("Billetten din er registrert!", input$submit_btn)
-      
+      "Din billettinformasjon"  # Display header after the button is clicked
+    } else {
+      "Fyll ut for å kjøpe billett"  # Display before clicking the button
+    }
+  })
+  
+  output$ticket_info <- renderUI({
+    if (input$submit_btn > 0) {
+      tagList(
+        h4("Billetten din er registrert"),  # Confirmation message
+        tableOutput("tibble_output")          # Display the ticket information in a table
+      )
     }
   })
   

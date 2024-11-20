@@ -1,5 +1,15 @@
 library(ggplot2)
 
+#Average cost for ticket by port and class. Need for UI
+average_price_by_port_class <- function(data) {
+  avg_fare_data <- data %>%
+    filter(!is.na(Embarked), !is.na(Pclass)) %>%
+    group_by(Embarked, Pclass) %>%
+    summarise(average_fare = mean(Fare, na.rm = TRUE), .groups = "drop")
+  
+  return(avg_fare_data)
+}
+
 
 #get avarage price for NA port
 avarage_na_port <- function(data){
@@ -106,6 +116,7 @@ wrangle_data <- function(na = FALSE) {
   # Importing the data
   path <- paste(getwd(), "/data/", "Titanic-Dataset.csv", sep = '')
   data <- read_csv(path)
+  view(data)
   
   if (na) return (data)
   

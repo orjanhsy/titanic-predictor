@@ -48,34 +48,7 @@ Data wrangling er prosessen med å forberede, rense og strukturere data for anal
 To av passasjerene mangler avreisehavn. Siden begge disse passasjerene har reist med førsteklasse og betalt samme pris finner vi gjennomsnittsprisen for alle førsteklasse-reisende for hver havn. Vi setter så avreisehavnen for de to passasjerene til den havnen som korrelerer best med prisen de har betalt.
 
 ```{r, warning=FALSE, echo=FALSE, fig.align='center'}
-create_median_fare_plot <- function(median_fares, avarage_NA){
-  ggplot(median_fares, aes(x = Embarked, y = median_fare)) +
-    geom_hline(yintercept = avarage_NA, color = "red", linetype = "dashed", size = 1) +
-    geom_col(fill = "skyblue", color = "black") +
-    labs(title = "Median bilettpris for avreisedestinasjon",
-         x = "Avreisedestinasjon",
-         y = "Median Bilettpris") +
-    theme_minimal() +
-    theme(
-      plot.background = element_rect(color = "black", linewidth = 1),
-      plot.title = element_text(size = 16, face = "bold", hjust = 0.5),
-      axis.title = element_text(face = "bold"),
-      axis.text = element_text(face = "bold")
-    )
-}
-
-plot_median_fare <- function(){
-  median_fares <- get_median_fare_by_port(na_data)
-  avarage_na <- avarage_na_port(na_data)
-  plot <- create_median_fare_plot(median_fares, avarage_na)
-  print(plot)
-}
-
-run_plots <- function() {
-  plot_median_fare()
-}
-
-run_plots()
+#kall fra plot.
 ```
 
 # 

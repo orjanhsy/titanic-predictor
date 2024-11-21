@@ -1,11 +1,11 @@
 library(ggplot2)
 
 #Average cost for ticket by port and class. Need for UI
-average_price_by_port_class <- function(data) {
+median_price_by_port_class <- function(data) {
   avg_fare_data <- data %>%
     filter(!is.na(Embarked), !is.na(Pclass)) %>%
     group_by(Embarked, Pclass) %>%
-    summarise(average_fare = mean(Fare, na.rm = TRUE), .groups = "drop")
+    summarise(average_fare = median(Fare, na.rm = TRUE), .groups = "drop")
   
   return(avg_fare_data)
 }

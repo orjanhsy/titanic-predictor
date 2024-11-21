@@ -11,16 +11,26 @@ for (pkg in dependencies) {
 source("code/wrangling/wrangling.R")
 source("code/models/model_data.R")
 source("code/models/models.R")
+source("code/plot/plot_missing_port.R")
+source("code/plot/plot_title_distribution.R")
 
 main <- function() {
   # prepare data for models
   data <- wrangle_data()
   na_data <- wrangle_data(na = TRUE)
   
-  #See average price for UI - Should make plot
-  avg_price_per <- average_price_by_port_class(data)
+  # see average price for UI - Should make plot
+  avg_price_per <- median_price_by_port_class(data)
   print(avg_price_per)
+  
+  #plot median fare for missing data
+  median_fare_plot <- plot_median_fare(na_data)
+  print(median_fare_plot)
 
+  #plot title distribution
+  title_distribution <- plot_title_distribution(data)
+  print(title_distribution)
+  
   model_data <- create_dummy_data(data)
   
   t_train <- model_data$t_train

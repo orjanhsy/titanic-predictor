@@ -174,6 +174,18 @@ accuracy <- tibble(
 print(accuracy)
 ```
 
+### Brukergrensesnitt
+I brukergrensesnittet har vi implementert mulighet for en bruker å «kjøpe en billett» til Titanic. Når dataen er samlet inn bruker vi informasjonen i modellen for å forutsi om brukeren ville overlevd forliset eller ikke. Vi benyttet biblioteket «shiny» for å lage grensesnittet. Informasjonen vi henter fra brukeren er:
+
+1.	All relevant informasjon for modellen. Tittel, alder, kjønn, avreisested, billettklasse og om man reiser med søsken, barn, ektefelle eller foreldre.
+2.	Grensesnittet ber også om brukerens navn til tross for at det er individuelle verdier som ikke benyttes i modellen. Dette gjør vi ettersom vi mener det gir en mer realistisk brukeropplevelse.
+
+#### Håndtering av data i grensesnitt
+Vi håndterer dataen i server siden av grensesnittet. For å skape god flyt mellom brukers input og resten av programmet valgte vi å lage en Tibble som matchet den rå dataen. Dette gjorde vi slik at vi kunne kjøre den samme wrangelingen på brukerinput som vi gjorde på datasettet fra Kaggle.com. Ettersom ikke alle variablene i den råe dataen blir brukt i modellene våre ser vi at det kunne vært en bedre ide å matche daten fra bruker direkte med den dataen som benyttes i modellen. På den måten kunne vi trolig spart noe kapasitet. 
+
+#### Resultat
+Når brukeren trykker på «Kjøp billett» knappen vil grensesnittet presentere om personen hadde overlevd eller ikke. 
+
 
 
 

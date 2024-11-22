@@ -1,6 +1,4 @@
 library(ggplot2)
-# Dependencies
-source("code/wrangling/wrangling.R")
 
 #plotting for visualization
 create_median_fare_plot <- function(median_fares, avarage_NA){

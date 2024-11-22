@@ -17,7 +17,9 @@ source("code/plot/plot_title_distribution.R")
 main <- function() {
   # prepare data for models
   path <- paste(getwd(), "/data/", "Titanic-Dataset.csv", sep = '')
-  data <- wrangle_data(path = path)
+  list_data <- wrangle_data(path = path)
+  data <- list_data$data
+  title_dist <- list_data$title_dist
   na_data <- wrangle_data(na = TRUE, path = path)
   
   model_data <- create_dummy_data(data)

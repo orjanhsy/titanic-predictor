@@ -38,8 +38,9 @@ source("../code/models/models.R")
 Data wrangling er prosessen med å forberede, rense og strukturere data for analyse (Kilde). I dette prosjektet håndterer vi flere viktige aspekter ved datasettet for å sikre at det er klart for modellering. Her er hva vi gjør i koden:
 
 ```{r, results='hide', message=FALSE}
-  data <- wrangle_data()
-  na_data <- wrangle_data(na = TRUE)
+  path <- paste(getwd(), "/../data/", "Titanic-Dataset.csv", sep = '')
+  data <- wrangle_data(path = path)
+  na_data <- wrangle_data(na = TRUE, path = path)
 ```
 
 #### 1. Behandling av manglende verdier (NA)

@@ -1,5 +1,5 @@
 # Dependencies
-dependencies <- c("tidyverse", "readr", "rsample", "tidymodels", "recipes", "glmnet", "ranger")
+dependencies <- c("tidyverse", "readr", "rsample", "tidymodels", "recipes", "glmnet", "ranger", "tidyr")
 for (pkg in dependencies) {
   if (!require(pkg, character.only = TRUE)) {
     install.packages(pkg)
@@ -16,8 +16,9 @@ source("code/plot/plot_title_distribution.R")
 
 main <- function() {
   # prepare data for models
-  data <- wrangle_data()
-  na_data <- wrangle_data(na = TRUE)
+  path <- paste(getwd(), "/data/", "Titanic-Dataset.csv", sep = '')
+  data <- wrangle_data(path = path)
+  na_data <- wrangle_data(na = TRUE, path = path)
   
   # see average price for UI - Should make plot
   avg_price_per <- median_price_by_port_class(data)

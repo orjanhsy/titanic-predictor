@@ -112,9 +112,8 @@ plot_title_distribution <- function(data) {
 }
 
 
-wrangle_data <- function(na = FALSE) {
+wrangle_data <- function(na = FALSE, path) {
   # Importing the data
-  path <- paste(getwd(), "/data/", "Titanic-Dataset.csv", sep = '')
   data <- read_csv(path)
   view(data)
   

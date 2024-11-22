@@ -3,6 +3,8 @@ library(shiny)
 library(bslib)
 library(tibble)
 
+ticket_tibble <- NULL
+
 ui <- fluidPage(
   theme = bs_theme(
     version = 4,
@@ -110,10 +112,10 @@ ui <- fluidPage(
 )
 server <- function(input, output) {
   # hard coded for now.
-  avg_fare_data <- tibble(
+  median_fare_data <- tibble(
     Embarked = c("C", "C", "C", "Q", "Q", "Q", "S", "S", "S"),
     Pclass = c(1, 2, 3, 1, 2, 3, 1, 2, 3),
-    average_fare = c(104, 25.4, 11.2, 90, 12.4, 11.2, 70.4, 20.3, 14.6)
+    average_fare = c(79.2, 24, 7.90, 90, 12.4, 7.75, 52, 13.5, 8.05)
   )
   
   ticket_data <- eventReactive(input$submit_btn, {
@@ -132,7 +134,7 @@ server <- function(input, output) {
                        ifelse(input$port == "Queenstown", "Q", "C"))
     
     # find average fare for Pclass and Embarked
-    fare_lookup <- avg_fare_data %>%
+    fare_lookup <- median_fare_data %>%
       filter(Embarked == embarked, Pclass == pclass) %>%
       pull(average_fare)
     
@@ -151,6 +153,12 @@ server <- function(input, output) {
       Cabin = NA_character_,
       Embarked = embarked
     )
+  })
+  
+  observeEvent(input$submit_btn,{
+    ticket_tibble <<- ticket_data()
+    print(ticket_tibble)
+    #kalle på det som skal kalles
   })
   
   output$info_header <- renderText({
@@ -174,7 +182,7 @@ server <- function(input, output) {
   output$tibble_output <- renderTable({
     ticket_data()
   })
+  return(ticket_data)
 }
 
 shinyApp(ui = ui, server = server)
-

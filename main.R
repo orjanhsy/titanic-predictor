@@ -36,6 +36,11 @@ main <- function() {
     fit(Survived ~., data = t_train)
   print("Completed tuning!")
   
+  # Save the tuned models
+  saveRDS(tuned_lso, "tuned_lasso_model.rds")
+  saveRDS(tuned_rf, "tuned_random_forest_model.rds")
+  saveRDS(tuned_xgb, "tuned_xgboost_model.rds")
+  
   # New predictions
   tuned_lso_pred <- predict(tuned_lso, new_data = t_test, type = "class")$.pred_class
   tuned_rf_pred <- predict(tuned_rf, new_data = t_test, type = "class")$.pred_class

@@ -1,5 +1,3 @@
-library(ggplot2)
-
 #Average cost for ticket by port and class. Need for UI
 median_price_by_port_class <- function(data) {
   avg_fare_data <- data %>%

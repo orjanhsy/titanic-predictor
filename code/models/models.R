@@ -51,7 +51,7 @@ create_tuned_model <- function(model_type, t_train) {
     "random_forest" = grid_regular(
       mtry(range = c(2, ncol(t_train) - 1)),
       min_n(range = c(2, 10)),
-      levels = 10
+      levels = 5
     ),
     "xgboost" = grid_space_filling(
       parameters(
@@ -60,7 +60,7 @@ create_tuned_model <- function(model_type, t_train) {
         loss_reduction(range = c(0, 5)),
         min_n(range = c(2, 20))
       ),
-      size = 20 
+      size = 5 
     )
   )
   

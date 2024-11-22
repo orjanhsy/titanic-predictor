@@ -1,8 +1,10 @@
 ---
-output:
-  html_document: default
-  pdf_document: default
+title: "Prosjekt Titanic overlevelse"
+author: "Tobias Windingstad og Ørjan Hammer"
+output: html_document
 ---
+
+
 # Prosjekt Titanic overlevelse
 ### Tobias Windingstad og Ørjan Hammer
 
@@ -30,6 +32,8 @@ for (pkg in dependencies) {
 ### Filer
 ```{r}
 source("../code/wrangling/wrangling.R")
+source("../code/plot/plot_missing_port.R")
+source("../code/plot/plot_title_distribution.R")
 source("../code/models/model_data.R")
 source("../code/models/models.R")
 ```
@@ -91,88 +95,80 @@ Gjennom denne prosessen sørger vi for at datasettet er renere, mer konsistente 
 
 
 
+#### MER OVERISKT-GREIER
+```{r}
+# see average price for UI - Should make plot
+avg_price_per <- median_price_by_port_class(data)
+print(avg_price_per)
+
+#plot median fare for missing data
+median_fare_plot <- plot_median_fare(na_data)
+print(median_fare_plot)
+
+#plot title distribution
+title_distribution <- plot_title_distribution(data)
+print(title_distribution)
+```
+
 ### Lag dummy-data og initial split
 ```{r, results='hide', message=FALSE}
 model_data <- create_dummy_data(data)
 t_train <- model_data$t_train
 t_test <- model_data$t_test
 ```
-
-### OLS model
-```{r, results='hide', warning=FALSE}
-ols_model <- linear_regression_model(t_train)
-  print("Trained OLS model:")
-  print(summary(ols_model))
-  print(alias(ols_model$fit))
-
-  ols_pred <- predict(ols_model, new_data = t_test) %>% pull(.pred)
-  
-```
-
-### LASSO model
-```{r, results='hide', warning=FALSE}
+### Ustemte modeller
+```{r}
+# Models 
 lso_model <- lasso_model(t_train)
-  print("Trained LASSO model:")
-  print(summary(lso_model))
-
-  lso_pred <- predict(lso_model, new_data = t_test) %>% pull(.pred)
-```
-
-### Random Forest model
-```{r, results='hide', warning=FALSE}
 rf_model <- random_forest_model(t_train)
-  print("Trained random forest model:")
-  print(summary(rf_model))
-
-  rf_pred <- predict(rf_model, new_data = t_test) %>% pull(.pred)
-```
-
-### Gradient Boosting Tree model
-```{r, results='hide', warning=FALSE}
 xgb_model <- xgboost_model(t_train)
-  print("Trained Gradient Boosting Tree model:")
-  print(summary(xgb_model))
-  
-  xgb_pred <- predict(xgb_model, new_data = t_test) %>% pull(.pred)
-```
 
+# Predictions 
+lso_pred <- predict(lso_model, new_data = t_test, type = "class")$.pred_class
+rf_pred <- predict(rf_model, new_data = t_test, type = "class")$.pred_class
+xgb_pred <- predict(xgb_model, new_data = t_test, type = "class")$.pred_class
 
-```{r, results='hide', warning=FALSE}
-errs <- tibble(
-    Actual = t_test$Survived,
-    OLS_errors = Actual - ols_pred,
-    LSO_errors = Actual - lso_pred,
-    RF_errors = Actual - rf_pred,
-    XGB_errors = Actual - xgb_pred,
-  ) 
-```
+# Accuracies
+lso_acc <- mean(lso_pred == t_test$Survived)
+rf_acc <- mean(rf_pred == t_test$Survived)
+xgb_acc <- mean(xgb_pred == t_test$Survived)
 
-### Kalkulere MSE og Accuracy
-```{r, results='hide', warning=FALSE}
-mse_ols <- mean(errs$OLS_errors^2)
-print(paste("MSE OLS: ", mse_ols))
-  
-mse_lso <- mean(errs$LSO_errors^2)
-print(paste("MSE LSO: ", mse_lso))
-  
-mse_rf <- mean(errs$RF_errors^2)
-print(paste("MSE RF: ", mse_rf))
-  
-mse_xgb <- mean(errs$XGB_errors^2)
-print(paste("MSE XGB: ", mse_xgb))
-  
-acc_ols =  sum((errs$OLS > 0.499) == errs$Actual) / length(errs$Actual)
-acc_lso = sum((errs$LSO > 0.499) == errs$Actual) / length(errs$Actual)
-acc_rf = sum((errs$RF > 0.499) == errs$Actual) / length(errs$Actual)
-acc_xgb = sum((errs$XGB > 0.499) == errs$Actual) / length(errs$Actual)
-  
-accuracy <- tibble(
-  osl = acc_ols,
-  lso = acc_lso,
-  rf = acc_rf,
-  xgb = acc_xgb
+accs <- tibble(
+  Model = c("LASSO", "RANDOM FOREST", "XGBOOST"),
+  Accuracy = c(lso_acc, rf_acc, xgb_acc)
 )
-print(accuracy)
+# print("Accuracies of:") 
+# print(accs)
+```
+
+### Stemte modeller
+```{r}
+# Tuned models
+tuned_lso <- create_tuned_model("lasso", t_train) %>%
+  fit(Survived ~., data = t_train)
+tuned_rf <- create_tuned_model("random_forest", t_train) %>%
+  fit(Survived ~., data = t_train)
+tuned_xgb <- create_tuned_model("xgboost", t_train) %>%
+  fit(Survived ~., data = t_train)
+print("Completed tuning!")
+
+# New predictions
+tuned_lso_pred <- predict(tuned_lso, new_data = t_test, type = "class")$.pred_class
+tuned_rf_pred <- predict(tuned_rf, new_data = t_test, type = "class")$.pred_class
+tuned_xgb_pred <- predict(tuned_xgb, new_data = t_test, type = "class")$.pred_class
+
+# Accuracies of tuned models
+tuned_lso_acc <- mean(tuned_lso_pred == t_test$Survived)
+tuned_rf_acc <- mean(tuned_rf_pred == t_test$Survived)
+tuned_xgb_acc <- mean(tuned_xgb_pred == t_test$Survived)
+
+new_accs <- tibble (
+  Model = c("LASSO", "RANDOM FOREST", "XGBOOST"),
+  untuned_acc = c(lso_acc, rf_acc, xgb_acc),
+  tuned_acc = c(tuned_lso_acc, tuned_rf_acc, tuned_xgb_acc)
+)
+print("Accuracy of tuned models:")
+print(new_accs)
 ```
 
 ### Brukergrensesnitt

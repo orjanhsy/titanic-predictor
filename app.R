@@ -158,7 +158,7 @@ server <- function(input, output) {
   observeEvent(input$submit_btn,{
     ticket_tibble <<- ticket_data()
     print(ticket_tibble)
-    #kalle på det som skal kalles
+    #kalle på det som skal kalles (tror jeg)
   })
   
   output$info_header <- renderText({

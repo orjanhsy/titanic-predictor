@@ -10,7 +10,6 @@ median_price_by_port_class <- function(data) {
   return(avg_fare_data)
 }
 
-
 #get avarage price for NA port
 avarage_na_port <- function(data){
   filtered_NA <- data %>%
@@ -92,25 +91,6 @@ get_titles <- function(data){
   return(data)
 }
 
-# Plot title distribution
-plot_title_distribution <- function(data) {
-  # Plot the distribution of titles
-  plot <- ggplot(data, aes(x = Title)) +
-    geom_bar(fill = "steelblue", color = "black") +
-    theme_minimal() +
-    labs(title = "Distribution of Titles", x = "Title", y = "Count") +
-    theme(axis.text.x = element_text(angle = 45, hjust = 1)) +  # Rotate x-axis labels for readability
-    geom_text(
-      stat = "count", 
-      aes(label = ..count..), 
-      vjust = -0.5,  # Adjust vertical position of the labels
-      size = 3  # Adjust label size
-    )
-  
-  # Print the plot
-  print(plot)
-}
-
 
 wrangle_data <- function(na = FALSE, path) {
   # Importing the data
@@ -120,7 +100,6 @@ wrangle_data <- function(na = FALSE, path) {
   if (na) return (data)
   
   check <- check_titles(data)
-  plot_title_distribution(check)
   
   data <- handle_na_age(data)
   data <- get_titles(data)
@@ -132,7 +111,7 @@ wrangle_data <- function(na = FALSE, path) {
   # remove irrelevant variables
   data <- data %>% select(-Cabin, -Name, -PassengerId, -Ticket)
   
-  return (data)
+  return (list(data = data, title_dist = check))
 }
 
 

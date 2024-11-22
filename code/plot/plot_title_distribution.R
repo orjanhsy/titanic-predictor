@@ -1,8 +1,5 @@
 library(ggplot2)
 
-# Dependencies
-source("code/wrangling/wrangling.R")
-
 # Plot title distribution
 create_title_distribution_plot <- function(data) {
   plot <- ggplot(data, aes(x = Title)) +

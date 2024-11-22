@@ -20,48 +20,10 @@ main <- function() {
   data <- wrangle_data(path = path)
   na_data <- wrangle_data(na = TRUE, path = path)
   
-  # see average price for UI - Should make plot
-  avg_price_per <- median_price_by_port_class(data)
-  print(avg_price_per)
-  
-  #plot median fare for missing data
-  median_fare_plot <- plot_median_fare(na_data)
-  print(median_fare_plot)
-
-  #plot title distribution
-  title_distribution <- plot_title_distribution(data)
-  print(title_distribution)
-  
   model_data <- create_dummy_data(data)
   
   t_train <- model_data$t_train
   t_test <- model_data$t_test
-  
-  view(t_train)
-  
-
-  # Models 
-  lso_model <- lasso_model(t_train)
-  rf_model <- random_forest_model(t_train)
-  xgb_model <- xgboost_model(t_train)
-  
-  # Predictions 
-  lso_pred <- predict(lso_model, new_data = t_test, type = "class")$.pred_class
-  rf_pred <- predict(rf_model, new_data = t_test, type = "class")$.pred_class
-  xgb_pred <- predict(xgb_model, new_data = t_test, type = "class")$.pred_class
-  
-  # Accuracies
-  lso_acc <- mean(lso_pred == t_test$Survived)
-  rf_acc <- mean(rf_pred == t_test$Survived)
-  xgb_acc <- mean(xgb_pred == t_test$Survived)
-  
-  accs <- tibble(
-    Model = c("LASSO", "RANDOM FOREST", "XGBOOST"),
-    Accuracy = c(lso_acc, rf_acc, xgb_acc)
-  )
-  
-  print("Accuracies of:") 
-  print(accs)
   
   # Tuned models
   tuned_lso <- create_tuned_model("lasso", t_train) %>%
@@ -84,8 +46,7 @@ main <- function() {
   
   new_accs <- tibble (
     Model = c("LASSO", "RANDOM FOREST", "XGBOOST"),
-    untuned_acc = c(lso_acc, rf_acc, xgb_acc),
-    tuned_acc = c(tuned_lso_acc, tuned_rf_acc, tuned_xgb_acc)
+    acc = c(tuned_lso_acc, tuned_rf_acc, tuned_xgb_acc)
   )
   print("Accuracy of tuned models:")
   print(new_accs)

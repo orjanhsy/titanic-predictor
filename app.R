@@ -94,7 +94,6 @@ ui <- fluidPage(
         selected = "Nei"
       ),
       
-      
       actionButton(
         inputId = "submit_btn",
         label = "Kjøp billett!"
@@ -110,6 +109,7 @@ ui <- fluidPage(
     )
   )
 )
+
 server <- function(input, output) {
   # hard coded for now.
   median_fare_data <- tibble(
@@ -127,8 +127,8 @@ server <- function(input, output) {
     # Map gender to 'male'/'female'
     sex <- ifelse(input$gender == "Mann", "male", "female")
     # Map pclass
-    pclass <- ifelse(input$pclass == "1. klasse", 1, 
-                     ifelse(input$pclass == "2. klasse", 2, 3))
+    pclass <- as.double(ifelse(input$pclass == "1. klasse", 1, 
+                               ifelse(input$pclass == "2. klasse", 2, 3)))
     # Map embarked
     embarked <- ifelse(input$port == "Southampton", "S", 
                        ifelse(input$port == "Queenstown", "Q", "C"))
@@ -140,25 +140,54 @@ server <- function(input, output) {
     
     # Create a tibble for model
     tibble(
-      PassengerId = 1,
-      Survived = 0,
       Pclass = pclass,
-      Name = paste0(input$last_name, ", ", input$title, ". ", input$first_name),
-      Sex = sex,
-      Age = as.numeric(input$age),
+      Age = as.double(input$age),
       SibSp = sibsp,
       Parch = parch,
-      Ticket = "1",
-      Fare = fare_lookup,
-      Cabin = NA_character_,
-      Embarked = embarked
+      Fare = as.double(fare_lookup),
+      Survived = 0,
+      Sex = sex,
+      Embarked = embarked,
+      Title = input$title
     )
   })
   
-  observeEvent(input$submit_btn,{
+  observeEvent(input$submit_btn, {
+    # Get the ticket data
     ticket_tibble <<- ticket_data()
-    print(ticket_tibble)
-    #kalle på det som skal kalles (tror jeg)
+    
+    # Convert categorical variables to factors
+    dummy_data <- ticket_tibble %>%
+      mutate(across(where(is.character), as.factor))
+    
+    # Manually create dummy variables for Sex, Embarked, and Title
+    dummy_data <- dummy_data %>%
+      mutate(
+        # Sex dummies: even if only one value (male or female), create both columns
+        Sex_male = ifelse(Sex == "male", 1, 0),
+        Sex_female = ifelse(Sex == "female", 1, 0),
+        
+        # Embarked dummies: create columns for each port
+        Embarked_C = ifelse(Embarked == "C", 1, 0),
+        Embarked_Q = ifelse(Embarked == "Q", 1, 0),
+        Embarked_S = ifelse(Embarked == "S", 1, 0),
+        
+        # Title dummies: create a column for each title
+        Title_Mr = ifelse(Title == "Herr", 1, 0),
+        Title_Mrs = ifelse(Title == "Fru", 1, 0),
+        Title_Ms = ifelse(Title == "Frøken", 1, 0),
+        Title_Master = ifelse(Title == "Mester", 1, 0),
+        Title_Other = ifelse(Title == "Annet", 1, 0)
+      )%>%
+      select(-Embarked, -Title, -Sex)%>%
+      mutate(Survived = as.factor(Survived))
+    
+    # Print and save the dummy data
+    print("Processed ticket data with dummy variables:")
+    print(dummy_data)
+    
+    # Save the processed data globally if needed
+    ticket_tibble <<- dummy_data
   })
   
   output$info_header <- renderText({
@@ -180,9 +209,8 @@ server <- function(input, output) {
   
   # Display tibble in UI
   output$tibble_output <- renderTable({
-    ticket_data()
+    ticket_tibble
   })
-  return(ticket_data)
 }
 
 shinyApp(ui = ui, server = server)

@@ -93,7 +93,6 @@ get_titles <- function(data){
 wrangle_data <- function(na = FALSE, path) {
   # Importing the data
   data <- read_csv(path)
-  view(data)
   
   if (na) return (data)
   

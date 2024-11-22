@@ -23,6 +23,9 @@ create_dummy_data <- function(data) {
   dummy_train <- bake(dummies, new_data = t_train)
   dummy_test <- bake(dummies, new_data = t_test)
   
+  print("Training Data with dummy variables:")
+  print(head(dummy_train))
+  
 
   
   return(list(t_train = dummy_train, t_test = dummy_test))

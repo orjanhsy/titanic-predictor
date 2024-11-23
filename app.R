@@ -186,7 +186,7 @@ server <- function(input, output) {
     
     prediction <- predict(trained_lasso, dummy_data, type = "class")
     
-    # Add the predicted survival value to the tibble
+    # add survival to tibble
     ticket_tibble <<- ticket_tibble %>%
       mutate(Survived = prediction)
     
@@ -214,11 +214,6 @@ server <- function(input, output) {
                   "Dette gikk ikke så bra du... Desverre"))
       )
     }
-  })
-  
-  # Display tibble in UI
-  output$tibble_output <- renderTable({
-    ticket_tibble
   })
 }
 

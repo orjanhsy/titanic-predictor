@@ -154,26 +154,26 @@ server <- function(input, output) {
   })
   
   observeEvent(input$submit_btn, {
-    # Get the ticket data
+    # get the ticket data
     ticket_tibble <<- ticket_data()
     
-    # Convert categorical variables to factors
+    # convert to factor
     dummy_data <- ticket_tibble %>%
       mutate(across(where(is.character), as.factor))
     
-    # Manually create dummy variables for Sex, Embarked, and Title
+    # manually create dummy variables
     dummy_data <- dummy_data %>%
       mutate(
-        # Sex dummies
+        # sex dummies
         Sex_male = ifelse(Sex == "male", 1, 0),
         Sex_female = ifelse(Sex == "female", 1, 0),
         
-        # Embarked dummies
+        # embarked dummies
         Embarked_C = ifelse(Embarked == "C", 1, 0),
         Embarked_Q = ifelse(Embarked == "Q", 1, 0),
         Embarked_S = ifelse(Embarked == "S", 1, 0),
         
-        # Title dummies
+        # title dummies
         Title_Mr = ifelse(Title == "Herr", 1, 0),
         Title_Mrs = ifelse(Title == "Fru", 1, 0),
         Title_Miss = ifelse(Title == "Frøken", 1, 0),

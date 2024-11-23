@@ -178,10 +178,20 @@ I brukergrensesnittet har vi implementert mulighet for en bruker å «kjøpe en 
 2.	Grensesnittet ber også om brukerens navn til tross for at det er individuelle verdier som ikke benyttes i modellen. Dette gjør vi ettersom vi mener det gir en mer realistisk brukeropplevelse.
 
 #### Håndtering av data i grensesnitt
-Vi håndterer dataen i server siden av grensesnittet. For å skape god flyt mellom brukers input og resten av programmet valgte vi å lage en Tibble som matchet den rå dataen. Dette gjorde vi slik at vi kunne kjøre den samme wrangelingen på brukerinput som vi gjorde på datasettet fra Kaggle.com. Ettersom ikke alle variablene i den råe dataen blir brukt i modellene våre ser vi at det kunne vært en bedre ide å matche daten fra bruker direkte med den dataen som benyttes i modellen. På den måten kunne vi trolig spart noe kapasitet. 
+Planen fra starten av wranglingen i grensesnittet var å lage en tibble som matchet det råe datasettet slik at vi kunne sende denne dataen inn i wrangling.R og videre inn i model_data.R for å gjøre dataen klar for modellen. Vi innså dog at det hadde dukket opp noe teknisk gjeld, med kun noen dager igjen til prosjektet skulle leveres. 
+
+Model_data.R, som håndterte dataen og lagde dummydata splittet også opp dataen i treningsdata og testdata. Ettersom grensesnittet kun besto av en rad med data og skulle håndteres av en ferdig trent modell var vi nødt til å finne en rask nødløsning. 
+
+Vi håndterte dette ved å manuelt opprette en tibble som matchet dataen etter den var prosessert av model_data i serversiden av appen. Disse valgene ble tatt, delvis grunnet miskommunikasjon og oppdeling av oppgaver. Vi at dette kunne blitt gjort på en både bedre og enklere måte om vi skulle jobbet videre på prosjektet.
+
+Vi har også noen globale variabler i prosjektet som vi ble nødt til å bruke grunnet mangel på tid og erfaring med utvikling av grensesnitt og shiny pakken i R. 
+
+Grensesnittet bruker ferdig trente modeller lagret med saveRDS og hentet med readRDS. Dette ønsket vi å gjøre slik at grensesnittet ikke trenger å vente på trening av modeller for hver gang man benytter det.
+
 
 #### Resultat
-Når brukeren trykker på «Kjøp billett» knappen vil grensesnittet presentere om personen hadde overlevd eller ikke. 
+Når brukeren trykker på «Kjøp billett» knappen vil dataen transformeres og den lagrede modellen blir kjørt på dataen fra brukeren. Grensesnittet viser umiddelbart indikasjonen fra modellen om brukeren ville overlevd forliset eller ikke. 
+ 
 
 
 

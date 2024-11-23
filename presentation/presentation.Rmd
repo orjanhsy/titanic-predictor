@@ -19,8 +19,8 @@ Prosjektet er skrevet i R Markdown, hvor vi benytter både R og ulike maskinlær
 
 
 ### Dependencies
-```{r, message=FALSE}
-dependencies <- c("tidyverse", "readr", "rsample", "tidymodels", "recipes", "glmnet", "ranger")
+```{r, message=FALSE, echo=FALSE}
+dependencies <- c("tidyverse", "readr", "rsample", "tidymodels", "recipes", "glmnet", "ranger", "vip")
 for (pkg in dependencies) {
   if (!require(pkg, character.only = TRUE)) {
     install.packages(pkg)
@@ -30,7 +30,7 @@ for (pkg in dependencies) {
 ```
 
 ### Filer
-```{r}
+```{r, echo=FALSE}
 source("../code/wrangling/wrangling.R")
 source("../code/plot/plot_missing_port.R")
 source("../code/plot/plot_title_distribution.R")
@@ -44,6 +44,7 @@ Data wrangling er prosessen med å forberede, rense og strukturere data for anal
 ```{r, results='hide', message=FALSE}
   path <- paste(getwd(), "/../data/", "Titanic-Dataset.csv", sep = '')
   data <- wrangle_data(path = path)
+  data <- data$data
   na_data <- wrangle_data(na = TRUE, path = path)
 ```
 
@@ -60,7 +61,7 @@ To av passasjerene mangler avreisehavn. Siden begge disse passasjerene har reist
 ##### Alder
 For passasjerer med manglende alder, bruker vi en median-alder som standard, med en ekstra detalj for personer som reiste med søsken eller ektefelle (SibSp > 0), men ikke med barn eller foreldre (Parch == 0). I slike tilfeller bruker vi gjennomsnittsalderen for personer med samme etternavn (antatt å være søsken eller ektefeller). Dette gir mange av de reisende medianalder, men vi mener at ved å legge til denne behandlingen vil vi kunne ha noe sterkere antakelser om alderen til noen av passasjerene.
 
-```{r, reults='hide', message=FALSE, eval=FALSE}
+```{r, results='hide', message=FALSE, eval=FALSE}
 handle_na_age <- function(data) {
   median_age <- median(data$Age, na.rm = TRUE)
   data <- data %>%
@@ -116,60 +117,61 @@ model_data <- create_dummy_data(data)
 t_train <- model_data$t_train
 t_test <- model_data$t_test
 ```
-### Ustemte modeller
-```{r}
-# Models 
-lso_model <- lasso_model(t_train)
-rf_model <- random_forest_model(t_train)
-xgb_model <- xgboost_model(t_train)
 
-# Predictions 
-lso_pred <- predict(lso_model, new_data = t_test, type = "class")$.pred_class
-rf_pred <- predict(rf_model, new_data = t_test, type = "class")$.pred_class
-xgb_pred <- predict(xgb_model, new_data = t_test, type = "class")$.pred_class
+### Tren modeller
+Vi fant ut at de mest relevant modellene for problemet var Lasso, Random Forest og Gradient Boosting. Her implementerer vi dem, og finner de beste hyperparameterne. 
 
-# Accuracies
-lso_acc <- mean(lso_pred == t_test$Survived)
-rf_acc <- mean(rf_pred == t_test$Survived)
-xgb_acc <- mean(xgb_pred == t_test$Survived)
-
-accs <- tibble(
-  Model = c("LASSO", "RANDOM FOREST", "XGBOOST"),
-  Accuracy = c(lso_acc, rf_acc, xgb_acc)
-)
-# print("Accuracies of:") 
-# print(accs)
+```{r, results='hide', message=FALSE}
+# Tuned models
+tuned_lso <- create_tuned_model("lasso", t_train) 
+tuned_rf <- create_tuned_model("random_forest", t_train) 
+tuned_xgb <- create_tuned_model("xgboost", t_train) 
 ```
 
-### Stemte modeller
+Videre trener vi modellen og undersøker treffsikkerheten deres i å avgjøre hvem som overlever.
 ```{r}
-# Tuned models
-tuned_lso <- create_tuned_model("lasso", t_train) %>%
+lso_fit <- tuned_lso %>%
   fit(Survived ~., data = t_train)
-tuned_rf <- create_tuned_model("random_forest", t_train) %>%
+rf_fit <- tuned_rf %>%
   fit(Survived ~., data = t_train)
-tuned_xgb <- create_tuned_model("xgboost", t_train) %>%
+xgb_fit <- tuned_xgb %>% 
   fit(Survived ~., data = t_train)
-print("Completed tuning!")
 
-# New predictions
-tuned_lso_pred <- predict(tuned_lso, new_data = t_test, type = "class")$.pred_class
-tuned_rf_pred <- predict(tuned_rf, new_data = t_test, type = "class")$.pred_class
-tuned_xgb_pred <- predict(tuned_xgb, new_data = t_test, type = "class")$.pred_class
+tuned_lso_pred <- predict(lso_fit, new_data = t_test, type = "class")$.pred_class
+tuned_rf_pred <- predict(rf_fit, new_data = t_test, type = "class")$.pred_class
+tuned_xgb_pred <- predict(xgb_fit, new_data = t_test, type = "class")$.pred_class
 
-# Accuracies of tuned models
 tuned_lso_acc <- mean(tuned_lso_pred == t_test$Survived)
 tuned_rf_acc <- mean(tuned_rf_pred == t_test$Survived)
 tuned_xgb_acc <- mean(tuned_xgb_pred == t_test$Survived)
 
-new_accs <- tibble (
+accs <- tibble (
   Model = c("LASSO", "RANDOM FOREST", "XGBOOST"),
-  untuned_acc = c(lso_acc, rf_acc, xgb_acc),
-  tuned_acc = c(tuned_lso_acc, tuned_rf_acc, tuned_xgb_acc)
+  acc = c(tuned_lso_acc, tuned_rf_acc, tuned_xgb_acc)
 )
-print("Accuracy of tuned models:")
-print(new_accs)
+print(accs)
 ```
+Som man kan se er modellene relativt like treffsikre. At denne ligger på rundt 85% er ikke isolert sett særlig imponerende. Vi tror likevell dette er omtrent hvor treffsikker en slik model kan bli gitt problemstillingen samt hvor lite datasettet er. NOE MER? 
+
+### Hvilke faktorer påvirker resultatet mest
+Vi bruker VIP-biblioteket for å undersøke hvilke variabler som har størst innvirkning på modellen.
+
+```{r}
+lso_vip <- tuned_lso %>%
+  set_engine("glmnet", importance = "permutation") %>%
+  fit(Survived ~., data = t_train) %>%
+  vip(geom = 'point')
+print(lso_vip)
+
+rf_vip <- tuned_rf %>%
+  set_engine("ranger", importance = "permutation") %>%
+  fit(Survived ~., data = t_train) %>%
+  vip(geom = 'point')
+print(rf_vip)
+
+# didn't work for xgb, need to find a way
+```
+
 
 ### Brukergrensesnitt
 I brukergrensesnittet har vi implementert mulighet for en bruker å «kjøpe en billett» til Titanic. Når dataen er samlet inn bruker vi informasjonen i modellen for å forutsi om brukeren ville overlevd forliset eller ikke. Vi benyttet biblioteket «shiny» for å lage grensesnittet. Informasjonen vi henter fra brukeren er:

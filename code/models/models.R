@@ -26,10 +26,7 @@ xgboost_model <- function(t_train){
 
 # return a specified (non fit) tuned model
 create_tuned_model <- function(model_type, t_train) {
-  # TODO: folds as it stands is only used here (for tuning hyperparams).
-  # If k-folds is helpful outside of tuning we move it out of this function
-  # and pass it as an argument to this function instead (the one currently named t_train).
-  folds <- vfold_cv(t_train, v = 10) # insanely slow for high repeats and v
+  folds <- vfold_cv(t_train, v = 2) 
   
   rec <- recipe(Survived ~., data = t_train) 
   

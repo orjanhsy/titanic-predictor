@@ -1,5 +1,5 @@
 # Dependencies
-dependencies <- c("tidyverse", "readr", "rsample", "tidymodels", "recipes", "glmnet", "ranger", "tidyr")
+dependencies <- c("tidyverse", "readr", "rsample", "tidymodels", "recipes", "glmnet", "ranger", "tidyr", "vip")
 for (pkg in dependencies) {
   if (!require(pkg, character.only = TRUE)) {
     install.packages(pkg)
@@ -57,6 +57,15 @@ main <- function() {
   )
   print("Accuracy of tuned models:")
   print(new_accs)
+  
+  new_tuned_rf <- create_tuned_model("random_forest", t_train)
+  vip <- new_tuned_rf %>%
+    set_engine("ranger", importance = "permutation") %>%
+    fit(Survived ~., data = t_train) %>%
+    vip(geom = "point")
+  
+  print(vip)
+ 
 }
 
 main()

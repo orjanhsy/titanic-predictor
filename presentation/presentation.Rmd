@@ -44,6 +44,7 @@ Data wrangling er prosessen med å forberede, rense og strukturere data for anal
 ```{r, results='hide', message=FALSE}
   path <- paste(getwd(), "/../data/", "Titanic-Dataset.csv", sep = '')
   data <- wrangle_data(path = path)
+  data <- data$data
   na_data <- wrangle_data(na = TRUE, path = path)
 ```
 
@@ -60,7 +61,7 @@ To av passasjerene mangler avreisehavn. Siden begge disse passasjerene har reist
 ##### Alder
 For passasjerer med manglende alder, bruker vi en median-alder som standard, med en ekstra detalj for personer som reiste med søsken eller ektefelle (SibSp > 0), men ikke med barn eller foreldre (Parch == 0). I slike tilfeller bruker vi gjennomsnittsalderen for personer med samme etternavn (antatt å være søsken eller ektefeller). Dette gir mange av de reisende medianalder, men vi mener at ved å legge til denne behandlingen vil vi kunne ha noe sterkere antakelser om alderen til noen av passasjerene.
 
-```{r, reults='hide', message=FALSE, eval=FALSE}
+```{r, results='hide', message=FALSE, eval=FALSE}
 handle_na_age <- function(data) {
   median_age <- median(data$Age, na.rm = TRUE)
   data <- data %>%

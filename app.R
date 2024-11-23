@@ -5,6 +5,8 @@ library(tibble)
 
 ticket_tibble <- NULL
 
+trained_lasso <- readRDS("code/models/tuned_models/tuned_lasso_model.rds")
+
 ui <- fluidPage(
   theme = bs_theme(
     version = 4,
@@ -175,19 +177,22 @@ server <- function(input, output) {
         # Title dummies
         Title_Mr = ifelse(Title == "Herr", 1, 0),
         Title_Mrs = ifelse(Title == "Fru", 1, 0),
-        Title_Ms = ifelse(Title == "Frøken", 1, 0),
+        Title_Miss = ifelse(Title == "Frøken", 1, 0),
         Title_Master = ifelse(Title == "Mester", 1, 0),
         Title_Other = ifelse(Title == "Annet", 1, 0)
       )%>%
       select(-Embarked, -Title, -Sex)%>%
       mutate(Survived = as.factor(Survived))
     
-    # Print and save the dummy data
-    print("Processed ticket data with dummy variables:")
-    print(dummy_data)
+    prediction <- predict(trained_lasso, dummy_data, type = "class")
     
-    # Save the processed data globally if needed
-    ticket_tibble <<- dummy_data
+    # Add the predicted survival value to the tibble
+    ticket_tibble <<- ticket_tibble %>%
+      mutate(Survived = prediction)
+    
+    print("Processed ticket data with dummy variables and prediction:")
+    print(ticket_tibble)
+    
   })
   
   output$info_header <- renderText({
@@ -200,9 +205,13 @@ server <- function(input, output) {
   
   output$ticket_info <- renderUI({
     if (input$submit_btn > 0) {
+      survival_prediction <- ticket_tibble$Survived$.pred_class
       tagList(
         h4("Billetten din er registrert"),
-        tableOutput("tibble_output")
+        br(),
+        h5(ifelse(survival_prediction == "1",
+                  "Gratulerer!! Du overlevde Titanic forliset :) ",
+                  "Dette gikk ikke så bra du... Desverre"))
       )
     }
   })

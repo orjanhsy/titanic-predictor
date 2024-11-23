@@ -163,16 +163,16 @@ server <- function(input, output) {
     # Manually create dummy variables for Sex, Embarked, and Title
     dummy_data <- dummy_data %>%
       mutate(
-        # Sex dummies: even if only one value (male or female), create both columns
+        # Sex dummies
         Sex_male = ifelse(Sex == "male", 1, 0),
         Sex_female = ifelse(Sex == "female", 1, 0),
         
-        # Embarked dummies: create columns for each port
+        # Embarked dummies
         Embarked_C = ifelse(Embarked == "C", 1, 0),
         Embarked_Q = ifelse(Embarked == "Q", 1, 0),
         Embarked_S = ifelse(Embarked == "S", 1, 0),
         
-        # Title dummies: create a column for each title
+        # Title dummies
         Title_Mr = ifelse(Title == "Herr", 1, 0),
         Title_Mrs = ifelse(Title == "Fru", 1, 0),
         Title_Ms = ifelse(Title == "Frøken", 1, 0),

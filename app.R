@@ -4,7 +4,6 @@ library(bslib)
 library(tibble)
 
 ticket_tibble <- NULL
-
 trained_lasso <- readRDS("code/models/tuned_models/tuned_lasso_model.rds")
 
 ui <- fluidPage(
@@ -181,7 +180,7 @@ server <- function(input, output) {
         Title_Master = ifelse(Title == "Mester", 1, 0),
         Title_Other = ifelse(Title == "Annet", 1, 0)
       )%>%
-      select(-Embarked, -Title, -Sex)%>%
+      select(-Embarked, -Title, -Sex) %>%
       mutate(Survived = as.factor(Survived))
     
     prediction <- predict(trained_lasso, dummy_data, type = "class")

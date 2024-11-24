@@ -86,7 +86,7 @@ get_last_name <- function(name) {
 
 
 #### 2. Ekstrahere tittel
-Vi ønsket å isolere tittelen fra navnet og legge den til i en egen kolonne. Vår teori er at dette kan gjøre dataen mer tilpasset maskinlæring ettersom tittelen kan være en indikator på faktorer som sivilstatus, alder eller sosioøkonomisk status. Etter å ha testet modellen og sjekket variabler innså vi at det var svært mange ulike titler. Vi valgte derfor å håndtere dette ved å putte alle sjeldne titler (>10) inn i en "other" varaibel. 
+Vi ønsket å isolere tittelen fra navnet og legge den til i en egen kolonne. Vår teori er at dette kan gjøre dataen mer tilpasset maskinlæring ettersom tittelen kan være en indikator på faktorer som sivilstatus, alder eller sosioøkonomisk status. Etter å ha testet modellen og sjekket variabler innså vi at det var svært mange ulike titler. Vi valgte derfor å håndtere dette ved å putte alle sjeldne titler (<10) inn i en "other" varaibel. 
 
 #### 3. Fjerne irrelevante og manglende variabler
 For å redusere kompleksiteten i datasettet fjerner vi kolonnen Cabin ettersom den har svært mange i datasettet som ikke hadde denne variabelen. Vi så først på muligheten for at det var en tydelig sammenheng mellom Pclass og Cabin ved bruk av en Chi-Squared. Det var tydelig at passasjerer i Pclass 1 var konsentrert i A, B, C og D kabiner, men ettersom det er svært lite data på hvor de resterende reisende bodde, ville vi ikke gjøre noen generalisering rundt dette. Name, Ticket og PassangerId er alle individuelle verdier som ikke vil ha noen påvirkning på modellene så vi fjernet disse.
@@ -157,17 +157,40 @@ Som man kan se er modellene relativt like treffsikre. At denne ligger på rundt 
 Vi bruker VIP-biblioteket for å undersøke hvilke variabler som har størst innvirkning på modellen.
 
 ```{r}
+num_feats <- length(t_train)
 lso_vip <- tuned_lso %>%
   set_engine("glmnet", importance = "permutation") %>%
   fit(Survived ~., data = t_train) %>%
-  vip(geom = 'point')
+  vip(geom = 'point', num_features = num_feats)
 print(lso_vip)
 
 rf_vip <- tuned_rf %>%
   set_engine("ranger", importance = "permutation") %>%
   fit(Survived ~., data = t_train) %>%
-  vip(geom = 'point')
+  vip(geom = 'point', num_features = num_feats)
 print(rf_vip)
+
+# Combined plot
+lso_vidat <- lso_vip$data
+rf_vidat <- lso_vip$data
+
+lso_vidat$model <- "LASSO"
+rf_vidat$model <- "Random Forest"
+
+vip_data <- bind_rows(lso_vidat, rf_vidat)
+
+# Ensure consistent levels for the variables
+vip_data <- vip_data %>%
+  mutate(Variable = factor(Variable, levels = unique(Variable)))
+
+ggplot(vip_data, aes(x = reorder(Variable, Importance), y = Importance, color = model)) +
+  geom_point(size = 3) +
+  coord_flip() +
+  labs(title = "Comparison of Variable Importance",
+       x = "Features",
+       y = "Importance",
+       color = "Model") +
+  theme_minimal()
 
 # didn't work for xgb, need to find a way
 ```

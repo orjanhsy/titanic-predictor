@@ -1,20 +1,20 @@
 ---
 title: "Prosjekt Titanic overlevelse"
 author: "Tobias Windingstad og Ørjan Hammer"
-output: html_document
+output:
+  pdf_document: default
+  html_document: default
 ---
-
-
-# Prosjekt Titanic overlevelse
-### Tobias Windingstad og Ørjan Hammer
 
 ### Introduksjon til oppgaven:
 
 I denne oppgaven skal vi benytte et datasett fra Kaggle.com, som inneholder informasjon om passasjerene på Titanic – historiens mest kjente skipsforlis. Natt til 15. april 1912 sank Titanic etter å ha kollidert med et isfjell i Nord-Atlanteren. Datasettet gir oss informasjon om blant annet passasjerenes alder, kjønn, klasse, billettpris og avreisested.
 
-Målet med prosjektet er å anvende maskinlæring for å forutsi hvilke faktorer som hadde størst betydning for overlevelse. Vi skal trene en modell som kan forutsi om en gitt passasjer ville ha overlevd ulykken. Vi vil analysere variabler og deres innvirkning på overlevelse, og til slutt bygge en prediksjonsmodell som kan teste ulike hypotetiske scenarier.
+Målet med prosjektet er å anvende maskinlæring for å forutsi hvilke faktorer som hadde størst betydning for overlevelse. Vi skal trene en modell som kan forutsi om en gitt passasjer ville ha overlevd ulykken. Vi vil analysere variabler og deres innvirkning på overlevelse, og til slutt bygge en prediksjonsmodell som kan teste ulike scenarier.
 
 Prosjektet er skrevet i R Markdown, hvor vi benytter både R og ulike maskinlæringsbiblioteker for å gjennomføre analysen og prediksjonen. Gjennom prosjektet vil vi også vurdere modellens ytelse og mulige forbedringer for å øke prediksjonens presisjon.
+
+Helt til slutt vil vi implementere et brukergrensesnitt som lar brukeren "kjøpe en billett" til Titanic, transformere dataen og predikere om personen ville overlevd basert på dataen hen oppgir.
 
 
 
@@ -35,6 +35,7 @@ source("../code/wrangling/wrangling.R")
 source("../code/plot/plot_missing_port.R")
 source("../code/plot/plot_title_distribution.R")
 source("../code/plot/median_price_pclass_port.R")
+source("../code/plot/plot_cabin_dist.R")
 source("../code/models/model_data.R")
 source("../code/models/models.R")
 ```
@@ -53,16 +54,15 @@ Data wrangling er prosessen med å forberede, rense og strukturere data for anal
 #### 1. Behandling av manglende verdier (NA)
 
 ##### Avreisehavn: 
-To av passasjerene mangler avreisehavn. Siden begge disse passasjerene har reist med førsteklasse og betalt samme pris finner vi gjennomsnittsprisen for alle førsteklasse-reisende for hver havn. Vi setter så avreisehavnen for de to passasjerene til den havnen som korrelerer best med prisen de har betalt.
+To av passasjerene mangler avreisehavn. Siden begge disse passasjerene har reist med førsteklasse og betalt samme pris finner vi gjennomsnittsprisen for alle førsteklasse-reisende for hver havn. Vi setter så avreisehavnen for de to passasjerene til den havnen som korrelerer best med prisen de har betalt. Vi lagde senere en funskjon som gjorde dette for alle havner ettersom vi trengte dette i grensesnittet.
 
 ```{r, echo=FALSE, fig.align='center'}
 median_fare_plot <- plot_median_fare(na_data)
 print(median_fare_plot)
 ```
 
-# 
 ##### Alder
-For passasjerer med manglende alder, bruker vi en median-alder som standard, med en ekstra detalj for personer som reiste med søsken eller ektefelle (SibSp > 0), men ikke med barn eller foreldre (Parch == 0). I slike tilfeller bruker vi gjennomsnittsalderen for personer med samme etternavn (antatt å være søsken eller ektefeller). Dette gir mange av de reisende medianalder, men vi mener at ved å legge til denne behandlingen vil vi kunne ha noe sterkere antakelser om alderen til noen av passasjerene.
+For passasjerer med manglende alder, bruker vi en median-alder som standard, med en ekstra detalj for personer som reiste med søsken eller ektefelle (SibSp > 0), men ikke med barn eller foreldre (Parch == 0). I slike tilfeller bruker vi gjennomsnittsalderen for personer med samme etternavn (antatt å være søsken eller ektefeller). Dette gir mange av de reisende medianalder, men vi mener at ved å legge til denne behandlingen vil vi kunne ha noe sterkere antakelser om alderen til noen av passasjerene. Vi ser det kunne vært mulighet for at andre faktorer kan påvirke alder, som f.eks. tittel eller klasse, men vi har ikke tatt hensyn til dette i prosjektet.
 
 ```{r, results='hide', message=FALSE, eval=FALSE}
 handle_na_age <- function(data) {
@@ -97,7 +97,12 @@ print(title_distribution)
 ```
 
 #### 3. Fjerne irrelevante og manglende variabler
-For å redusere kompleksiteten i datasettet fjerner vi kolonnen Cabin ettersom den har svært mange i datasettet som ikke hadde denne variabelen. Vi så først på muligheten for at det var en tydelig sammenheng mellom Pclass og Cabin ved bruk av en Chi-Squared. Det var tydelig at passasjerer i Pclass 1 var konsentrert i A, B, C og D kabiner, men ettersom det er svært lite data på hvor de resterende reisende bodde, ville vi ikke gjøre noen generalisering rundt dette. Name, Ticket og PassangerId er alle individuelle verdier som ikke vil ha noen påvirkning på modellene så vi fjernet disse.
+For å redusere kompleksiteten i datasettet fjerner vi kolonnen Cabin ettersom den har svært mange i datasettet som ikke hadde denne variabelen. Vi så først på muligheten for at det var en tydelig sammenheng mellom Pclass og Cabin ved bruk av en Chi-Squared. Det var tydelig at passasjerer i Pclass 1 var konsentrert i A, B, C, D og E kabiner, men ettersom det er svært lite data på hvor de resterende reisende bodde, ville vi ikke gjøre noen generalisering rundt dette. Name, Ticket og PassangerId er alle individuelle verdier som ikke vil ha noen påvirkning på modellene så vi fjernet disse.
+
+```{r, echo=FALSE, fig.align='center'}
+cabin_distribution <- plot_cabin_dist(na_data)
+print(cabin_distribution)
+```
 
 
 Gjennom denne prosessen sørger vi for at datasettet er renere, mer konsistente og at de manglende variablene er håndtert.

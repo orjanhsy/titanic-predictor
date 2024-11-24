@@ -154,26 +154,22 @@ server <- function(input, output) {
   })
   
   observeEvent(input$submit_btn, {
-    # get the ticket data
+
     ticket_tibble <<- ticket_data()
-    
-    # convert to factor
+
     dummy_data <- ticket_tibble %>%
       mutate(across(where(is.character), as.factor))
-    
-    # manually create dummy variables
+
     dummy_data <- dummy_data %>%
       mutate(
-        # sex dummies
+
         Sex_male = ifelse(Sex == "male", 1, 0),
         Sex_female = ifelse(Sex == "female", 1, 0),
-        
-        # embarked dummies
+
         Embarked_C = ifelse(Embarked == "C", 1, 0),
         Embarked_Q = ifelse(Embarked == "Q", 1, 0),
         Embarked_S = ifelse(Embarked == "S", 1, 0),
-        
-        # title dummies
+
         Title_Mr = ifelse(Title == "Herr", 1, 0),
         Title_Mrs = ifelse(Title == "Fru", 1, 0),
         Title_Miss = ifelse(Title == "Frøken", 1, 0),
@@ -188,10 +184,6 @@ server <- function(input, output) {
     # add survival to tibble
     ticket_tibble <<- ticket_tibble %>%
       mutate(Survived = prediction)
-    
-    print("Processed ticket data with dummy variables and prediction:")
-    print(ticket_tibble)
-    
   })
   
   output$info_header <- renderText({

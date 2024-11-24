@@ -14,7 +14,7 @@ create_median_price_plot <- function(data){
       y = "Median pris",
       fill = "Klasse"
     ) +
-    scale_fill_manual(values = c("skyblue", "red", "lightgreen")) +
+    scale_fill_manual(values = c("skyblue", "orange", "lightgreen")) +
     theme_minimal() +
     theme(
       plot.background = element_rect(color = "black", linewidth = 1),

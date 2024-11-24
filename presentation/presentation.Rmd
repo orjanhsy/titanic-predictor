@@ -182,7 +182,7 @@ I brukergrensesnittet har vi implementert mulighet for en bruker å «kjøpe en 
 #### Håndtering av data i grensesnitt
 Planen fra starten av wranglingen i grensesnittet var å lage en tibble som matchet det råe datasettet slik at vi kunne sende denne dataen inn i wrangling.R og videre inn i model_data.R for å gjøre dataen klar for modellen. Vi innså dog at det hadde dukket opp noe teknisk gjeld, med kun noen dager igjen til prosjektet skulle leveres. 
 
-Model_data.R, som håndterte dataen og lagde dummydata splittet også opp dataen i treningsdata og testdata. Ettersom grensesnittet kun besto av en rad med data og skulle håndteres av en ferdig trent modell var vi nødt til å finne en rask nødløsning. 
+Model_data.R, som håndterte dataen og lagde dummydata splittet også opp dataen i treningsdata og testdata. Vi så på muligheten for å splitte opp denne funskjonen, men når vi kjørte bake på den nye dataen med kun en rad fungerte ikke dette, ettersom bake ikke kan opprette alle dummy-variablene vi trengte. Ettersom grensesnittet kun besto av en rad med data og skulle håndteres av en ferdig trent modell var vi nødt til å finne en rask nødløsning. 
 
 Vi håndterte dette ved å manuelt opprette en tibble som matchet dataen etter den var prosessert av model_data i serversiden av appen. Disse valgene ble tatt, delvis grunnet miskommunikasjon og oppdeling av oppgaver. Vi at dette kunne blitt gjort på en både bedre og enklere måte om vi skulle jobbet videre på prosjektet.
 

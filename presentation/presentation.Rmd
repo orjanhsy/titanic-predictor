@@ -101,13 +101,12 @@ print(title_distribution)
 #### 3. Fjerne irrelevante og manglende variabler
 For å redusere kompleksiteten i datasettet fjerner vi kolonnen Cabin ettersom den har svært mange i datasettet som ikke hadde denne variabelen. Vi så først på muligheten for at det var en tydelig sammenheng mellom Pclass og Cabin ved bruk av en Chi-Squared. Det var tydelig at passasjerer i Pclass 1 var konsentrert i A, B, C, D og E kabiner, men ettersom det er svært lite data på hvor de resterende reisende bodde, ville vi ikke gjøre noen generalisering rundt dette. Name, Ticket og PassangerId er alle individuelle verdier som ikke vil ha noen påvirkning på modellene så vi fjernet disse.
 
+Gjennom hele data-wrangling prosessen sørger vi for at datasettet er renere, mer konsistente og at de manglende variablene er håndtert. Wranglingen kunne vært gjort på mange måter, og har en stor påvikning på det endelige resultatet. Om vi skulle gjenntatt prosjektet burde vi i større grad undersøkt datasettet i større grad før vi startet wranglingen. Til tross for dette føler vi at dataen er håndtert på en god måte.
+
 ```{r, echo=FALSE, fig.align='center', fig.cap="**_Figur 3:_** *Kabin fordeling basert på klasse.*"}
 cabin_distribution <- plot_cabin_dist(na_data)
 print(cabin_distribution)
 ```
-
-
-Gjennom denne prosessen sørger vi for at datasettet er renere, mer konsistente og at de manglende variablene er håndtert.
 
 
 ### Lag dummy-data og initial split
@@ -118,7 +117,7 @@ t_test <- model_data$t_test
 ```
 
 ### Tren modeller
-Vi fant ut at de mest relevant modellene for problemet var Lasso, Random Forest og Gradient Boosting. Her implementerer vi dem, og finner de beste hyperparameterne. 
+Vi fant ut at de mest relevant modellene for problemet var Lasso, Random Forest og Gradient Boosting. Her implementerer vi dem, og finner de beste hyperparameterne. TODO: SKRIVE OM HVORFOR VI VALGTE PARAMETERNE. OM DET ER FORDI BEST PRACTICE, SÅ SKRIV DET.
 
 ```{r, results='hide', message=FALSE}
 # Tuned models
@@ -150,7 +149,7 @@ accs <- tibble (
 )
 print(accs)
 ```
-Som man kan se er modellene relativt like når det kommer til treffsikkerhet. At de ligger på rundt 85% er ikke isolert sett særlig imponerende. Vi tror likevel dette er omtrent hvor treffsikker en slik model kan bli gitt problemstillingen samt hvor lite datasettet er.
+Modellene har relativt lik treffsikkerhet. Ca. 85% er ikke - isolert sett - særlig imponerende. Vi tror likevel dette er omtrent hvor treffsikker en slik model kan bli gitt problemstillingen samt hvor lite datasettet er. TODO: VI VET JO DET KAN BLI BEDRE. SIER IKKE AT VI SKAL GJØRE OM, MEN ET GOOGLE SØK VISER JO DET
 
 ### Hvilke faktorer påvirker resultatet mest
 Videre ønsker vi å se på hvilken innvirkning hver enkelt faktor har på de ulike modellene. Gradient Boosting Tree fokuserte i stor grad på et fåtall variabler. Vi valge derfor å fremstille den i et eget plot. Vip-biblioteket ble brukt til å finne de viktigste faktorene.
@@ -165,7 +164,7 @@ vip_xgb <- vip_xgb(tuned_xgb, t_train)
 plot_vip_xgb(vip_xgb)
 ```
 
-Det vi ser er at de forskjellige modellene vektlegger forskjellige faktorer. Dette ser ut til å gjelde selv når vi ikke bruker set.seed(). Dette stammer nok fra at modellene gjennomfører treningen forskjellig, spesielt mellom de tre-baserte modellene og Lasso. TODO: KANSKJE LITT MER DETALJER OM HVORFOR!!
+Det vi ser er at de forskjellige modellene vektlegger forskjellige faktorer. Dette ser ut til å gjelde også når vi ikke bruker set.seed(). Dette stammer trolig fra at modellene gjennomfører treningen forskjellig, spesielt mellom de tre-baserte modellene og Lasso. TODO: KANSKJE LITT MER DETALJER OM HVORFOR!!
 
 ### Brukergrensesnitt
 I brukergrensesnittet har vi implementert mulighet for en bruker å «kjøpe en billett» til Titanic. Når dataen er samlet inn bruker vi informasjonen i modellen for å forutsi om brukeren ville overlevd forliset eller ikke. Vi benyttet biblioteket «shiny» for å lage grensesnittet. Informasjonen vi henter fra brukeren er:
@@ -198,6 +197,6 @@ Når brukeren trykker på «Kjøp billett» knappen vil dataen transformeres og 
 
 
 
-
+### TODO: KONKLUSJON, SAMMENDRAG, NOE NOE. VET IKKE HELT.
 
 

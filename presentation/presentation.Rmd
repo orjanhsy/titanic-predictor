@@ -4,11 +4,12 @@ author: "Tobias Windingstad og Ørjan Hammer"
 output:
   html_document: default
   pdf_document: default
+
 ---
 
 ### Introduksjon til oppgaven:
 
-I denne oppgaven skal vi benytte et datasett fra Kaggle.com, som inneholder informasjon om passasjerene på Titanic – historiens mest kjente skipsforlis. Natt til 15. april 1912 sank Titanic etter å ha kollidert med et isfjell i Nord-Atlanteren. Datasettet gir oss informasjon om blant annet passasjerenes alder, kjønn, klasse, billettpris og avreisested.
+I denne oppgaven skal vi benytte et datasett fra Kaggle.com, som inneholder informasjon om passasjerene på Titanic – historiens mest kjente skipsforlis. Natt til 15. april 1912 sank Titanic etter å ha kollidert med et isfjell i Atlanterhavet. Datasettet gir oss informasjon om blant annet passasjerenes alder, kjønn, klasse, billettpris og avreisested.
 
 Målet med prosjektet er å anvende maskinlæring for å forutsi hvilke faktorer som hadde størst betydning for overlevelse. Vi skal trene en modell som kan forutsi om en gitt passasjer ville ha overlevd ulykken. Vi vil analysere variabler og deres innvirkning på overlevelse, og til slutt bygge en prediksjonsmodell som kan teste ulike scenarier.
 
@@ -42,7 +43,7 @@ source("code/models/models.R")
 ```
 
 ### Data wrangling:
-Data wrangling er prosessen med å forberede, rense og strukturere data for analyse (Kilde). I dette prosjektet håndterer vi flere viktige aspekter ved datasettet for å sikre at det er klart for modellering. Her er hva vi gjør i koden:
+Data wrangling er prosessen med å forberede, rense og strukturere data for analyse. I dette prosjektet håndterer vi flere viktige aspekter ved datasettet for å sikre at det er klart for modellering. Her er hva vi gjør i koden:
 
 ```{r, results='hide', message=FALSE}
   path <- paste(getwd(), "/data/", "Titanic-Dataset.csv", sep = '')
@@ -57,7 +58,7 @@ Data wrangling er prosessen med å forberede, rense og strukturere data for anal
 ##### Avreisehavn: 
 To av passasjerene mangler avreisehavn. Siden begge disse passasjerene har reist med førsteklasse og betalt samme pris finner vi gjennomsnittsprisen for alle førsteklasse-reisende for hver havn. Vi setter så avreisehavnen for de to passasjerene til den havnen som korrelerer best med prisen de har betalt. Vi lagde senere en funskjon som gjorde dette for alle havner ettersom vi trengte dette i grensesnittet.
 
-```{r, echo=FALSE, fig.align='center'}
+```{r, echo=FALSE, fig.align='center', fig.cap="**_Figur 1:_** *Median for førsteklasse passasjerer for avreisedestinasjon.*"}
 median_fare_plot <- plot_median_fare(na_data)
 print(median_fare_plot)
 ```
@@ -92,7 +93,7 @@ get_last_name <- function(name) {
 #### 2. Ekstrahere tittel
 Vi ønsket å isolere tittelen fra navnet og legge den til i en egen kolonne. Vår teori er at dette kan gjøre dataen mer tilpasset maskinlæring ettersom tittelen kan være en indikator på faktorer som sivilstatus, alder eller sosioøkonomisk status. Etter å ha testet modellen og sjekket variabler innså vi at det var svært mange ulike titler. Vi valgte derfor å håndtere dette ved å putte alle sjeldne titler (<10) inn i en "other" varaibel. 
 
-```{r, echo=FALSE, fig.align='center'}
+```{r, echo=FALSE, fig.align='center', fig.cap="**_Figur 2:_** *Antall passasjerer per tittle.*"}
 title_distribution <- plot_title_distribution(title_dist)
 print(title_distribution)
 ```
@@ -100,7 +101,7 @@ print(title_distribution)
 #### 3. Fjerne irrelevante og manglende variabler
 For å redusere kompleksiteten i datasettet fjerner vi kolonnen Cabin ettersom den har svært mange i datasettet som ikke hadde denne variabelen. Vi så først på muligheten for at det var en tydelig sammenheng mellom Pclass og Cabin ved bruk av en Chi-Squared. Det var tydelig at passasjerer i Pclass 1 var konsentrert i A, B, C, D og E kabiner, men ettersom det er svært lite data på hvor de resterende reisende bodde, ville vi ikke gjøre noen generalisering rundt dette. Name, Ticket og PassangerId er alle individuelle verdier som ikke vil ha noen påvirkning på modellene så vi fjernet disse.
 
-```{r, echo=FALSE, fig.align='center'}
+```{r, echo=FALSE, fig.align='center', fig.cap="**_Figur 3:_** *Kabin fordeling basert på klasse.*"}
 cabin_distribution <- plot_cabin_dist(na_data)
 print(cabin_distribution)
 ```
@@ -153,10 +154,13 @@ Som man kan se er modellene relativt like når det kommer til treffsikkerhet. At
 
 ### Hvilke faktorer påvirker resultatet mest
 Videre ønsker vi å se på hvilken innvirkning hver enkelt faktor har på de ulike modellene. Gradient Boosting Tree fokuserte i stor grad på et fåtall variabler. Vi valge derfor å fremstille den i et eget plot. Vip-biblioteket ble brukt til å finne de viktigste faktorene.
-```{r, echo=FALSE, fig.align='center'}
+
+```{r, echo=FALSE, fig.align='center', fig.cap="**_Figur 4:_** *Faktorinnvirkning.*"}
 vip_lso_rf <- vip_lso_rf(tuned_lso, tuned_rf, t_train)
 plot_vip_lso_rf(vip_lso_rf)
+```
 
+```{r, echo=FALSE, fig.align='center', fig.cap="**_Figur 5:_** *Faktorinnvirkning.*"}
 vip_xgb <- vip_xgb(tuned_xgb, t_train)
 plot_vip_xgb(vip_xgb)
 ```
@@ -178,7 +182,7 @@ Vi håndterte dette ved å manuelt opprette en tibble som matchet dataen - etter
 
 Billettprisen er en faktor i modellen, men noe vi ikke så på som særlig relevant for grensesnittet. Vi valgte derfor å finne medianprisen for hver enkelt avreisehavn og billettklasse og på den måten sette en pris basert på "billetten man kjøper". Resultatet av dette er nå hardkodet inn i app.R
 
-```{r, echo=FALSE, fig.align='center'} 
+```{r, echo=FALSE, fig.align='center', fig.cap="**_Figur 6:_** *Pris for klasse og avreisedestinasjon.*"}
 avg_price_per <- median_price_by_port_class(data)
 plot_median_price(avg_price_per)
 ```
@@ -191,7 +195,6 @@ Grensesnittet bruker ferdig trente modeller lagret med saveRDS og hentet med rea
 
 #### Resultat
 Når brukeren trykker på «Kjøp billett» knappen vil dataen transformeres og den lagrede modellen blir kjørt på dataen fra brukeren. Grensesnittet viser umiddelbart indikasjonen fra modellen om brukeren ville overlevd forliset eller ikke. 
- 
 
 
 

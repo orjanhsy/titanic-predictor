@@ -1,6 +1,7 @@
 library(ggplot2)
 
 create_median_fare_plot <- function(median_fares, avarage_NA){
+
   ggplot(median_fares, aes(x = Embarked, y = median_fare)) +
     geom_hline(yintercept = avarage_NA, color = "orange", linetype = "dashed", linewidth = 1) +
     geom_col(fill = "skyblue", color = "black") +

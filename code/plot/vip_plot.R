@@ -66,22 +66,23 @@ plot_vip_lso_rf <- function(vip_data) {
     labs(title = "Faktorinnvirkning Lasso og Random Forest",
          x = "Variabel",
          y = "Innvirkning (%)") +
-    scale_fill_manual(values = c("Lasso" = "skyblue", "Random Forest" = "orange"))
+    scale_fill_manual(values = c("Lasso" = "skyblue", "Random Forest" = "orange")) +
     theme_minimal() +
     theme(
-      plot.background = element_rect(color = "black", linewidth = 1),
-      plot.title = element_text(size = 16, face = "bold", hjust = 0.5),
-      axis.title = element_text(face = "bold"),
-      axis.text = element_text(face = "bold")
-    ) 
-    
-  return (percentage_plot)
+      plot.background = element_rect(color = "black", linewidth = 1),  # Innramming
+      panel.background = element_rect(fill = "white"),  # Hvit bakgrunn på panelet
+      plot.title = element_text(size = 16, face = "bold", hjust = 0.5),  # Fet overskrift
+      axis.title = element_text(face = "bold"),  # Fet aksjetitler
+      axis.text = element_text(face = "bold")  # Fet aksjetekst
+    )
+  
+  return(percentage_plot)
 }
 
 plot_vip_xgb <- function(vip_data) {
-   xgb_percentage_plot <- ggplot(vip_data, aes(x = reorder(Variable, Importance_percentage), y = Importance_percentage)) +
+  xgb_percentage_plot <- ggplot(vip_data, aes(x = reorder(Variable, Importance_percentage), y = Importance_percentage)) +
     geom_col(fill = "skyblue") +
-    geom_text(aes(label = round(Importance_percentage, 1)), hjust = -0.1) +  # Adjust label placement
+    geom_text(aes(label = round(Importance_percentage, 1)), hjust = -0.1, size = 3) +  # Redusert tekststørrelse
     coord_flip() +
     labs(title = "Faktorinnvirkning Gradient Boosting Tree",
          x = "Variabel",
@@ -89,13 +90,14 @@ plot_vip_xgb <- function(vip_data) {
     theme_minimal() +
     theme(legend.position = "none") +
     theme(
-      plot.background = element_rect(color = "black", linewidth = 1),
-      plot.title = element_text(size = 16, face = "bold", hjust = 0.5),
-      axis.title = element_text(face = "bold"),
-      axis.text = element_text(face = "bold")
+      plot.background = element_rect(color = "black", linewidth = 1),  # Innramming rundt hele plottet
+      plot.title = element_text(size = 14, face = "bold", hjust = 0.5),  # Redusert fontstørrelse på tittel
+      axis.title = element_text(face = "bold", size = 12),  # Redusert fontstørrelse på aksjetitler
+      axis.text = element_text(face = "bold", size = 10),  # Redusert fontstørrelse på aksjetekst
+      plot.margin = margin(10, 10, 10, 10)  # Juster margene rundt plottet
     )
   
-   return(xgb_percentage_plot)
+  return(xgb_percentage_plot)
 }
 
 # source("code/wrangling/wrangling.R")

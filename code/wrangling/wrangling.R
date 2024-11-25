@@ -64,26 +64,22 @@ get_last_name <- function(name) {
   return (last_name)
 }
 
-#Check for visualization
 check_titles <- function(data){
   data <- data %>%
     mutate(Title = sub(".*,\\s*(\\w+)\\..*", "\\1", Name))
   return(data)
 }
 
-#Extract title and adds a new "Title" column
 get_titles <- function(data){
   data <- data %>%
     mutate(Title = sub(".*,\\s*(\\w+)\\..*", "\\1", Name))
   
-  # Count occurrences of each Title
   title_counts <- data %>%
     group_by(Title) %>%
     tally() %>%
     filter(n <= 10) %>%
     pull(Title)
-  
-  # Replace titles with 10 or fewer occurrences with "Other"
+
   data <- data %>%
     mutate(Title = ifelse(Title %in% title_counts, "Other", Title))
   
@@ -94,7 +90,7 @@ get_titles <- function(data){
 wrangle_data <- function(na = FALSE, path) {
   # Importing the data
   data <- read_csv(path)
-  
+  # in cases we need unwrangled data
   if (na) return (data)
   
   check <- check_titles(data)

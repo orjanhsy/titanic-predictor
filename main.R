@@ -58,14 +58,43 @@ main <- function() {
   print("Accuracy of tuned models:")
   print(new_accs)
   
+  new_tuned_lso <- create_tuned_model("lasso", t_train)
   new_tuned_rf <- create_tuned_model("random_forest", t_train)
-  vip <- new_tuned_rf %>%
+  
+  num_feats <- length(t_train)
+  lso_vip <- new_tuned_lso %>%
+    set_engine("glmnet", importance = "permutation") %>%
+    fit(Survived ~., data = t_train) %>%
+    vip(geom = 'point', num_features = num_feats)
+  print(lso_vip)
+  
+  rf_vip <- new_tuned_rf %>%
     set_engine("ranger", importance = "permutation") %>%
     fit(Survived ~., data = t_train) %>%
-    vip(geom = "point")
+    vip(geom = 'point', num_features = num_feats)
+  print(rf_vip)
   
-  print(vip)
- 
+  # Combined plot
+  lso_vidat <- lso_vip$data
+  rf_vidat <- lso_vip$data
+  
+  lso_vidat$model <- "LASSO"
+  rf_vidat$model <- "Random Forest"
+  
+  vip_data <- bind_rows(lso_vidat, rf_vidat)
+  
+  # Ensure consistent levels for the variables
+  vip_data <- vip_data %>%
+    mutate(Variable = factor(Variable, levels = unique(Variable)))
+  
+  ggplot(vip_data, aes(x = reorder(Variable, Importance), y = Importance, color = model)) +
+    geom_point(size = 3) +
+    coord_flip() +
+    labs(title = "Comparison of Variable Importance",
+         x = "Features",
+         y = "Importance",
+         color = "Model") +
+    theme_minimal()
 }
 
 main()

@@ -26,7 +26,7 @@ xgboost_model <- function(t_train){
 
 # return a specified (non fit) tuned model
 create_tuned_model <- function(model_type, t_train) {
-  folds <- vfold_cv(t_train, v = 2) 
+  folds <- vfold_cv(t_train, v = 10) 
   
   rec <- recipe(Survived ~., data = t_train) 
   

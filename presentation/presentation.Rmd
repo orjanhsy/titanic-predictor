@@ -2,8 +2,8 @@
 title: "Prosjekt Titanic overlevelse"
 author: "Tobias Windingstad og Ørjan Hammer"
 output:
-  pdf_document: default
   html_document: default
+  pdf_document: default
 ---
 
 ### Introduksjon til oppgaven:
@@ -31,20 +31,21 @@ for (pkg in dependencies) {
 
 ### Filer
 ```{r, echo=FALSE}
-source("../code/wrangling/wrangling.R")
-source("../code/plot/plot_missing_port.R")
-source("../code/plot/plot_title_distribution.R")
-source("../code/plot/median_price_pclass_port.R")
-source("../code/plot/plot_cabin_dist.R")
-source("../code/models/model_data.R")
-source("../code/models/models.R")
+source("code/wrangling/wrangling.R")
+source("code/plot/plot_missing_port.R")
+source("code/plot/plot_title_distribution.R")
+source("code/plot/median_price_pclass_port.R")
+source("code/plot/plot_cabin_dist.R")
+source("code/plot/vip_plot.R")
+source("code/models/model_data.R")
+source("code/models/models.R")
 ```
 
 ### Data wrangling:
 Data wrangling er prosessen med å forberede, rense og strukturere data for analyse (Kilde). I dette prosjektet håndterer vi flere viktige aspekter ved datasettet for å sikre at det er klart for modellering. Her er hva vi gjør i koden:
 
 ```{r, results='hide', message=FALSE}
-  path <- paste(getwd(), "/../data/", "Titanic-Dataset.csv", sep = '')
+  path <- paste(getwd(), "/data/", "Titanic-Dataset.csv", sep = '')
   data <- wrangle_data(path = path)
   title_dist <- data$title_dist
   data <- data$data
@@ -89,7 +90,7 @@ get_last_name <- function(name) {
 
 
 #### 2. Ekstrahere tittel
-Vi ønsket å isolere tittelen fra navnet og legge den til i en egen kolonne. Vår teori er at dette kan gjøre dataen mer tilpasset maskinlæring ettersom tittelen kan være en indikator på faktorer som sivilstatus, alder eller sosioøkonomisk status. Etter å ha testet modellen og sjekket variabler innså vi at det var svært mange ulike titler. Vi valgte derfor å håndtere dette ved å putte alle sjeldne titler (>10) inn i en "other" varaibel. 
+Vi ønsket å isolere tittelen fra navnet og legge den til i en egen kolonne. Vår teori er at dette kan gjøre dataen mer tilpasset maskinlæring ettersom tittelen kan være en indikator på faktorer som sivilstatus, alder eller sosioøkonomisk status. Etter å ha testet modellen og sjekket variabler innså vi at det var svært mange ulike titler. Vi valgte derfor å håndtere dette ved å putte alle sjeldne titler (<10) inn i en "other" varaibel. 
 
 ```{r, echo=FALSE, fig.align='center'}
 title_distribution <- plot_title_distribution(title_dist)
@@ -148,27 +149,19 @@ accs <- tibble (
 )
 print(accs)
 ```
-Som man kan se er modellene relativt like treffsikre. At denne ligger på rundt 85% er ikke isolert sett særlig imponerende. Vi tror likevel dette er omtrent hvor treffsikker en slik model kan bli gitt problemstillingen samt hvor lite datasettet er. NOE MER? 
+Som man kan se er modellene relativt like når det kommer til treffsikkerhet. At de ligger på rundt 85% er ikke isolert sett særlig imponerende. Vi tror likevel dette er omtrent hvor treffsikker en slik model kan bli gitt problemstillingen samt hvor lite datasettet er.
 
 ### Hvilke faktorer påvirker resultatet mest
-Vi bruker VIP-biblioteket for å undersøke hvilke variabler som har størst innvirkning på modellen.
+Videre ønsker vi å se på hvilken innvirkning hver enkelt faktor har på de ulike modellene. Gradient Boosting Tree fokuserte i stor grad på et fåtall variabler. Vi valge derfor å fremstille den i et eget plot. Vip-biblioteket ble brukt til å finne de viktigste faktorene.
+```{r, echo=FALSE, fig.align='center'}
+vip_lso_rf <- vip_lso_rf(tuned_lso, tuned_rf, t_train)
+plot_vip_lso_rf(vip_lso_rf)
 
-```{r}
-lso_vip <- tuned_lso %>%
-  set_engine("glmnet", importance = "permutation") %>%
-  fit(Survived ~., data = t_train) %>%
-  vip(geom = 'point')
-print(lso_vip)
-
-rf_vip <- tuned_rf %>%
-  set_engine("ranger", importance = "permutation") %>%
-  fit(Survived ~., data = t_train) %>%
-  vip(geom = 'point')
-print(rf_vip)
-
-# didn't work for xgb, need to find a way
+vip_xgb <- vip_xgb(tuned_xgb, t_train)
+plot_vip_xgb(vip_xgb)
 ```
 
+Det vi ser er at de forskjellige modellene vektlegger forskjellige faktorer. Dette ser ut til å gjelde selv når vi ikke bruker set.seed(). Dette stammer nok fra at modellene gjennomfører treningen forskjellig, spesielt mellom de tre-baserte modellene og Lasso. TODO: KANSKJE LITT MER DETALJER OM HVORFOR!!
 
 ### Brukergrensesnitt
 I brukergrensesnittet har vi implementert mulighet for en bruker å «kjøpe en billett» til Titanic. Når dataen er samlet inn bruker vi informasjonen i modellen for å forutsi om brukeren ville overlevd forliset eller ikke. Vi benyttet biblioteket «shiny» for å lage grensesnittet. Informasjonen vi henter fra brukeren er:
@@ -185,7 +178,7 @@ Vi håndterte dette ved å manuelt opprette en tibble som matchet dataen - etter
 
 Billettprisen er en faktor i modellen, men noe vi ikke så på som særlig relevant for grensesnittet. Vi valgte derfor å finne medianprisen for hver enkelt avreisehavn og billettklasse og på den måten sette en pris basert på "billetten man kjøper". Resultatet av dette er nå hardkodet inn i app.R
 
-```{r, echo=FALSE, fig.align='center'}
+```{r, echo=FALSE, fig.align='center'} 
 avg_price_per <- median_price_by_port_class(data)
 plot_median_price(avg_price_per)
 ```

@@ -70,6 +70,7 @@ check_titles <- function(data){
     mutate(Title = sub(".*,\\s*(\\w+)\\..*", "\\1", Name))
   return(data)
 }
+
 #Extract title and adds a new "Title" column
 get_titles <- function(data){
   data <- data %>%

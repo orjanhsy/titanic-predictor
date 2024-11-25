@@ -1,13 +1,14 @@
 library(ggplot2)
 
-#plotting for visualization
 create_median_fare_plot <- function(median_fares, avarage_NA){
   ggplot(median_fares, aes(x = Embarked, y = median_fare)) +
-    geom_hline(yintercept = avarage_NA, color = "red", linetype = "dashed", size = 1) +
+    geom_hline(yintercept = avarage_NA, color = "orange", linetype = "dashed", linewidth = 1) +
     geom_col(fill = "skyblue", color = "black") +
-    labs(title = "Median bilettpris for avreisedestinasjon",
-         x = "Avreisedestinasjon",
-         y = "Median Bilettpris") +
+    labs(
+      title = "Median bilettpris for avreisedestinasjon",
+      x = "Avreisedestinasjon",
+      y = "Median Bilettpris"
+    ) +
     theme_minimal() +
     theme(
       plot.background = element_rect(color = "black", linewidth = 1),

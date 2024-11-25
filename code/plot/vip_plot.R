@@ -63,12 +63,18 @@ plot_vip_lso_rf <- function(vip_data) {
   percentage_plot <- ggplot(vip_data, aes(x = reorder(Variable, Importance_percentage), y = Importance_percentage, fill = model)) +
     geom_col(position = "dodge") +
     coord_flip() +
-    labs(title = "Variable Importance as Percentage of Total Importance",
-         x = "Variable",
-         y = "Importance (%)") +
-    theme_bw() +
-    theme(legend.position = "bottom")
-  
+    labs(title = "Faktorinnvirkning Lasso og Random Forest",
+         x = "Variabel",
+         y = "Innvirkning (%)") +
+    scale_fill_manual(values = c("Lasso" = "skyblue", "Random Forest" = "orange"))
+    theme_minimal() +
+    theme(
+      plot.background = element_rect(color = "black", linewidth = 1),
+      plot.title = element_text(size = 16, face = "bold", hjust = 0.5),
+      axis.title = element_text(face = "bold"),
+      axis.text = element_text(face = "bold")
+    ) 
+    
   return (percentage_plot)
 }
 
@@ -77,11 +83,17 @@ plot_vip_xgb <- function(vip_data) {
     geom_col(fill = "skyblue") +
     geom_text(aes(label = round(Importance_percentage, 1)), hjust = -0.1) +  # Adjust label placement
     coord_flip() +
-    labs(title = "XGBoost Variable Importance as Percentage of Total Importance",
-         x = "Variable",
-         y = "Importance (%)") +
-    theme_bw() +
-    theme(legend.position = "none")
+    labs(title = "Faktorinnvirkning Gradient Boosting Tree",
+         x = "Variabel",
+         y = "Innvirkning (%)") +
+    theme_minimal() +
+    theme(legend.position = "none") +
+    theme(
+      plot.background = element_rect(color = "black", linewidth = 1),
+      plot.title = element_text(size = 16, face = "bold", hjust = 0.5),
+      axis.title = element_text(face = "bold"),
+      axis.text = element_text(face = "bold")
+    )
   
    return(xgb_percentage_plot)
 }

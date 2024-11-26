@@ -32,6 +32,8 @@ for (pkg in dependencies) {
 
 ### Filer
 ```{r, echo=FALSE}
+# Make sure the working directory is set to root directory of the project.
+# You also have to set the 'knit directory' to current working directory if you want to knit the file 
 source("code/wrangling/wrangling.R")
 source("code/plot/plot_missing_port.R")
 source("code/plot/plot_title_distribution.R")
@@ -46,6 +48,7 @@ source("code/models/models.R")
 Data wrangling er prosessen med å forberede, rense og strukturere data for analyse. I dette prosjektet håndterer vi flere viktige aspekter ved datasettet for å sikre at det er klart for modellering. Her er hva vi gjør i koden:
 
 ```{r, results='hide', message=FALSE}
+  set.seed(121)
   path <- paste(getwd(), "/data/", "Titanic-Dataset.csv", sep = '')
   data <- wrangle_data(path = path)
   title_dist <- data$title_dist
@@ -117,8 +120,7 @@ t_test <- model_data$t_test
 ```
 
 ### Tren modeller
-Vi fant ut at de mest relevant modellene for problemet var Lasso, Random Forest og Gradient Boosting. Her implementerer vi dem, og finner de beste hyperparameterne. TODO: SKRIVE OM HVORFOR VI VALGTE PARAMETERNE. OM DET ER FORDI BEST PRACTICE, SÅ SKRIV DET.
-
+Vi fant ut at de mest relevant modellene for problemet var Lasso, Random Forest og Gradient Boosting Tree. Her implementerer vi dem, og finner de beste hyperparameterne. TODO: SKRIVE OM HVORFOR VI VALGTE PARAMETERNE. OM DET ER FORDI BEST PRACTICE, SÅ SKRIV DET. -> Vi laget en funksjon som tar inn modelnavn som parameter, og utifra navnet lager den en modelspesifikkasjon samt en grid med potensielle hyperparameter. Spennet av verdier i dette griddet har vi valgt basert på det som virker som konsensus på blant annet Stack Overflow (eW, noe annet?). Videre bruker den tune_grid() fra tune-biblioteket i Tidyverse i kombinasjon med select_best() til å finne hvilke hyperparametere som sammen gir den beste treffsikkerheten. 
 ```{r, results='hide', message=FALSE}
 # Tuned models
 tuned_lso <- create_tuned_model("lasso", t_train) 
@@ -126,7 +128,7 @@ tuned_rf <- create_tuned_model("random_forest", t_train)
 tuned_xgb <- create_tuned_model("xgboost", t_train) 
 ```
 
-Videre trener vi modellen og undersøker treffsikkerheten deres i å avgjøre hvem som overlever.
+Deretter trener vi modellene og undersøker treffsikkerheten deres i å avgjøre hvem som overlever.
 ```{r}
 lso_fit <- tuned_lso %>%
   fit(Survived ~., data = t_train)
@@ -149,7 +151,7 @@ accs <- tibble (
 )
 print(accs)
 ```
-Modellene har relativt lik treffsikkerhet. Ca. 85% er ikke - isolert sett - særlig imponerende. Vi tror likevel dette er omtrent hvor treffsikker en slik model kan bli gitt problemstillingen samt hvor lite datasettet er. TODO: VI VET JO DET KAN BLI BEDRE. SIER IKKE AT VI SKAL GJØRE OM, MEN ET GOOGLE SØK VISER JO DET
+Modellene har relativt lik treffsikkerhet. Ca. 85% er ikke - isolert sett - særlig imponerende. Vi tror likevel dette er omtrent hvor treffsikker en slik model kan bli gitt problemstillingen samt hvor lite datasettet er. TODO: VI VET JO DET KAN BLI BEDRE. SIER IKKE AT VI SKAL GJØRE OM, MEN ET GOOGLE SØK VISER JO DET -> Kommentar: da får vi bare skrive at det fins bedre og hvorfor vi tror de er bedre enn vår. Jeg har ikke googlet i det hele tatt så jeg aner ikke hva grunnene skulle vært atm. men det stemmer sikkert at det i hovedsak har med wrangling å gjøre. Kan sikkert bare skrive at det er grunnen. 
 
 ### Hvilke faktorer påvirker resultatet mest
 Videre ønsker vi å se på hvilken innvirkning hver enkelt faktor har på de ulike modellene. Gradient Boosting Tree fokuserte i stor grad på et fåtall variabler. Vi valge derfor å fremstille den i et eget plot. Vip-biblioteket ble brukt til å finne de viktigste faktorene.

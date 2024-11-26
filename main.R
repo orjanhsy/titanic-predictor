@@ -1,3 +1,6 @@
+# This file is mainly for experimenting with functions and making sure they are  
+# correct before moving them to the presentation markdown file.
+
 # Dependencies
 dependencies <- c("tidyverse", "readr", "rsample", "tidymodels", "recipes", "glmnet", "ranger", "tidyr", "vip")
 for (pkg in dependencies) {

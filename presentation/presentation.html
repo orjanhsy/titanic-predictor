@@ -574,7 +574,16 @@ Vip-biblioteket ble brukt til å finne de viktigste faktorene.</p>
 faktorer. Dette ser ut til å gjelde også når vi ikke bruker set.seed().
 Dette stammer trolig fra at modellene gjennomfører treningen
 forskjellig, spesielt mellom de tre-baserte modellene og Lasso. TODO:
-KANSKJE LITT MER DETALJER OM HVORFOR!!</p>
+KANSKJE LITT MER DETALJER OM HVORFOR!! -&gt; Et resultat som er spesielt
+interessant ifra disse figurene er hvor lite viktighet hver modell gir
+til faktorer som blant annet sex_male, title_mr. Disse faktorene
+forteller oss at passasjerene er menn, noe som er avdekket i studier til
+å være en av de viktigste faktorene. Likevell har samtlige modeller
+ingen fokus på dem. Vi konkluderer med at dette er fordi sex_female -
+som samtlige modeller har satt mye fokus på - forteller modellen nok om
+hvilket kjønn passasjeren har. Dette er spesielt aktuelt i Lasso, hvor
+en av karakteristikkene er å straffe bruk av koeffisienter eller veldig
+sammenhengende faktorer.</p>
 </div>
 <div id="brukergrensesnitt" class="section level3">
 <h3>Brukergrensesnitt</h3>

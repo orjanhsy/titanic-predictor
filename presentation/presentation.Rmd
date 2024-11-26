@@ -31,6 +31,8 @@ for (pkg in dependencies) {
 
 ### Filer
 ```{r, echo=FALSE}
+# cwd need to be set to the root directory of the project
+# you may have to change the knit setting to match that
 source("code/wrangling/wrangling.R")
 source("code/plot/plot_missing_port.R")
 source("code/plot/plot_title_distribution.R")

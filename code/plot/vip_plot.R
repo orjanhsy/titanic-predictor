@@ -87,13 +87,13 @@ plot_vip_xgb <- function(vip_data) {
          x = "Variabel",
          y = "Innvirkning (%)") +
     theme_minimal() +
-    theme(legend.position = "none") +
-    theme(
-      plot.background = element_rect(color = "black", linewidth = 1),
-      plot.title = element_text(size = 16, face = "bold", hjust = 0.5),
-      axis.title = element_text(face = "bold"),
-      axis.text = element_text(face = "bold")
-    )
+    theme(legend.position = "none") 
+    # theme(
+    #   plot.background = element_rect(color = "black", linewidth = 1),
+    #   plot.title = element_text(size = 16, face = "bold", hjust = 0.5),
+    #   axis.title = element_text(face = "bold"),
+    #   axis.text = element_text(face = "bold")
+    # )
   
    return(xgb_percentage_plot)
 }

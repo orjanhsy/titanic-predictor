@@ -208,7 +208,7 @@ Ettersom dette er en kjent oppgave, med mange tidligere gode løsninger var vi o
 
 En grunn til viktigheten av wrangling prosessen er størrelsen på datasettet. Med kun ca. 900 rader med data gjør det viktigheten av å håndtere manglende data på en god måte svært verdifullt. For hver variabel man tar ut av settet, eller setter unøyaktige verdier vil modellen ha et dårligere grunnlag for å gjøre nøyaktige prediksjoner. 
 
-Vi mener fremdeles at vi har gjort en god innsats med å forberede dataen til vår evne. Selv om vi nå - med vår nye læring og kunnskap - ser at det er forbedringer vi kunne gjort. Ettersom noe av den læringen er hentet fra andres arbeid går vi ikke i detalj. 
+Vi mener fremdeles at vi har gjort en god innsats med å forberede dataen til vår evne. Selv om vi nå - med vår nye læring og kunnskap - ser at det er forbedringer vi kunne gjort.
 
 Inkluderingen av et grensesnitt er noe som gir oppgaven et preg av interaktivitet, som vi synes er et spennende tillegskomponent. Å kunne benytte modellen og gjøre den tilgjengelig for brukere og gi en prediksjon for overlevelse gir prosjektet et mer praktisk og engasjerende aspekt. Til tross for mangel på erfaring med utvikling av grensesnitt, samt noen raske nødløsninger, synes vi at det fungerer godt.
 

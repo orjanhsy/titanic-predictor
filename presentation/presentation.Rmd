@@ -6,7 +6,7 @@ output:
   html_document: default
 ---
 
-### Introduksjon til oppgaven:
+## Introduksjon til oppgaven
 
 I denne oppgaven skal vi benytte et datasett fra Kaggle.com, som inneholder informasjon om passasjerene på Titanic – historiens mest kjente skipsforlis. Natt til 15. april 1912 sank Titanic etter å ha kollidert med et isfjell i Atlanterhavet. Datasettet gir oss informasjon om blant annet passasjerenes alder, kjønn, klasse, billettpris og avreisested.
 
@@ -16,10 +16,8 @@ Prosjektet er skrevet i R Markdown, hvor vi benytter både R og ulike maskinlær
 
 Helt til slutt vil vi implementere et brukergrensesnitt som lar brukeren "kjøpe en billett" til Titanic, transformere dataen og predikere om personen ville overlevd basert på dataen hen oppgir.
 
-
-
-### Dependencies
 ```{r, message=FALSE, echo=FALSE}
+# Dependencies
 dependencies <- c("tidyverse", "readr", "rsample", "tidymodels", "recipes", "glmnet", "ranger", "vip")
 for (pkg in dependencies) {
   if (!require(pkg, character.only = TRUE)) {
@@ -29,7 +27,7 @@ for (pkg in dependencies) {
 }
 ```
 
-### Filer
+
 ```{r, echo=FALSE}
 # Make sure the working directory is set to root directory of the project.
 # You also have to set the 'knit directory' to current working directory if you want to knit the file 
@@ -43,8 +41,8 @@ source("code/models/model_data.R")
 source("code/models/models.R")
 ```
 
-### Data wrangling:
-Data wrangling er prosessen med å forberede, rense og strukturere data for analyse. I dette prosjektet håndterer vi flere viktige aspekter ved datasettet for å sikre at det er klart for modellering. Her er hva vi gjør i koden:
+## Data wrangling
+Data wrangling er prosessen med å forberede, rense og strukturere data for analyse. I dette prosjektet håndterer vi flere viktige aspekter ved datasettet for å sikre at det er klart for modellering. Her er hva vi gjør i main:
 
 ```{r, results='hide', message=FALSE}
   set.seed(121)
@@ -55,17 +53,17 @@ Data wrangling er prosessen med å forberede, rense og strukturere data for anal
   na_data <- wrangle_data(na = TRUE, path = path)
 ```
 
-#### 1. Behandling av manglende verdier (NA)
+### 1. Behandling av manglende verdier (NA)
 
-##### Avreisehavn: 
+#### Avreisehavn:
 To av passasjerene mangler avreisehavn. Siden begge disse passasjerene har reist med førsteklasse og betalt samme pris finner vi gjennomsnittsprisen for alle førsteklasse-reisende for hver havn. Vi setter så avreisehavnen for de to passasjerene til den havnen som korrelerer best med prisen de har betalt. Vi lagde senere en funskjon som gjorde dette for alle havner ettersom vi trengte dette i grensesnittet.
 
-```{r, echo=FALSE, fig.align='center', fig.cap = "Pris for 1.klasse og avreisehavn."}
+```{r, echo=FALSE, out.width='80%', fig.width=7, fig.height=5,fig.align='center', fig.cap = "Pris for 1.klasse og avreisehavn."}
 median_fare_plot <- plot_median_fare(na_data)
 print(median_fare_plot)
 ```
 
-##### Alder
+#### Alder:
 For passasjerer med manglende alder, bruker vi en median-alder som standard, med en ekstra detalj for personer som reiste med søsken eller ektefelle (SibSp > 0), men ikke med barn eller foreldre (Parch == 0). I slike tilfeller bruker vi gjennomsnittsalderen for personer med samme etternavn (antatt å være søsken eller ektefeller). Dette gir mange av de reisende medianalder, men vi mener at ved å legge til denne behandlingen vil vi kunne ha noe sterkere antakelser om alderen til noen av passasjerene. Vi ser det kunne vært mulighet for at andre faktorer kan påvirke alder, som f.eks. tittel eller klasse, men vi har ikke tatt hensyn til dette i prosjektet.
 
 ```{r, results='hide', message=FALSE, eval=FALSE}
@@ -92,20 +90,22 @@ get_last_name <- function(name) {
 ```
 
 
-#### 2. Ekstrahere tittel
+### 2. Ekstrahere tittel
+
 Vi ønsket å isolere tittelen fra navnet og legge den til i en egen kolonne. Vår teori er at dette kan gjøre dataen mer tilpasset maskinlæring ettersom tittelen kan være en indikator på faktorer som sivilstatus, alder eller sosioøkonomisk status. Etter å ha testet modellen og sjekket variabler innså vi at det var svært mange ulike titler. Vi valgte derfor å håndtere dette ved å putte alle sjeldne titler (<10) inn i en "other" varaibel. 
 
-```{r, echo=FALSE, fig.align='center', fig.cap = "Antall passasjerer per tittel"}
+```{r, echo=FALSE, out.width='80%', fig.width=7, fig.height=5,fig.align='center', fig.cap = "Antall passasjerer per tittel"}
 title_distribution <- plot_title_distribution(title_dist)
 print(title_distribution)
 ```
 
-#### 3. Fjerne irrelevante og manglende variabler
+### 3. Fjerne irrelevante og manglende variabler
+
 For å redusere kompleksiteten i datasettet fjerner vi kolonnen Cabin ettersom den har svært mange i datasettet som ikke hadde denne variabelen. Vi så først på muligheten for at det var en tydelig sammenheng mellom Pclass og Cabin ved bruk av en Chi-Squared. Det var tydelig at passasjerer i Pclass 1 var konsentrert i A, B, C, D og E kabiner, men ettersom det er svært lite data på hvor de resterende reisende bodde, ville vi ikke gjøre noen generalisering rundt dette. Name, Ticket og PassangerId er alle individuelle verdier som ikke vil ha noen påvirkning på modellene så vi fjernet disse.
 
 Gjennom hele data-wrangling prosessen sørger vi for at datasettet er renere, mer konsistente og at de manglende variablene er håndtert. Wranglingen kunne vært gjort på mange måter, og har en stor påvikning på det endelige resultatet. Om vi skulle gjenntatt prosjektet burde vi i større grad undersøkt datasettet i større grad før vi startet wranglingen. Til tross for dette føler vi at dataen er håndtert på en god måte.
 
-```{r, echo=FALSE, fig.align='center', fig.cap = "Kabin fordeling per klasse"}
+```{r, echo=FALSE, out.width='80%', fig.width=7, fig.height=5,fig.align='center', fig.cap = "Kabin fordeling per klasse"}
 cabin_distribution <- plot_cabin_dist(na_data)
 print(cabin_distribution)
 ```
@@ -119,6 +119,7 @@ t_test <- model_data$t_test
 ```
 
 ### Tren modeller
+
 Vi fant ut at de mest relevant modellene for problemet var Lasso, Random Forest og Gradient Boosting Tree. Her implementerer vi dem, og finner de beste hyperparameterne. Vi laget en funksjon som tar inn modelnavn som parameter, og utifra navnet lager den en modelspesifikkasjon samt en grid med potensielle hyperparameter. Spennet av verdier i dette griddet har vi valgt basert på det som virker som konsensus på blant annet Stack Overflow. Videre bruker den tune_grid() fra tune-biblioteket i Tidyverse i kombinasjon med select_best() til å finne hvilke hyperparametere som sammen gir den beste treffsikkerheten. 
 ```{r, results='hide', message=FALSE}
 # Tuned models
@@ -156,14 +157,15 @@ Modellene har relativt lik treffsikkerhet. Ca. 85% er ikke - isolert sett - sær
 
 
 ### Hvilke faktorer påvirker resultatet mest
+
 Videre ønsker vi å se på hvilken innvirkning hver enkelt faktor har på de ulike modellene. Gradient Boosting Tree fokuserte i stor grad på et fåtall variabler. Vi valge derfor å fremstille den i et eget plot. Vip-biblioteket ble brukt til å finne de viktigste faktorene.
 
-```{r, echo=FALSE, fig.align='center', fig.cap = "Faktorinnvirkning Lasso og Random Forrest"}
+```{r, echo=FALSE, out.width='80%', fig.width=7, fig.height=5,fig.align='center', fig.cap = "Faktorinnvirkning Lasso og Random Forrest"}
 vip_lso_rf <- vip_lso_rf(tuned_lso, tuned_rf, t_train)
 plot_vip_lso_rf(vip_lso_rf)
 ```
 
-```{r, echo=FALSE, fig.align='center', fig.cap = "Faktorinnvirkning XGB"}
+```{r, echo=FALSE, out.width='80%', fig.width=7, fig.height=5,fig.align='center', fig.cap = "Faktorinnvirkning XGB"}
 vip_xgb <- vip_xgb(tuned_xgb, t_train)
 plot_vip_xgb(vip_xgb)
 ```
@@ -172,12 +174,14 @@ Det vi ser er at de forskjellige modellene vektlegger forskjellige faktorer. Det
 Et resultat som er spesielt interessant ifra disse figurene er hvor lite viktighet Lasso gir til faktorer som blant annet sex_male, title_mr. Disse faktorene forteller oss at passasjerene er menn, noe som er avdekket i studier til å være en av de viktigste faktorene. Likevell har to av modellene ingen fokus på dem. Vi konkluderer med at dette er fordi sex_female - som samtlige modeller har satt mye fokus på - forteller modellen nok om hvilket kjønn passasjeren har. Dette er spesielt aktuelt i Lasso, hvor en av karakteristikkene er å straffe bruk av koeffisienter eller veldig sammenhengende faktorer, men vi ser det også i Gradient Boosting Tree. 
 
 ### Brukergrensesnitt
+
 I brukergrensesnittet har vi implementert mulighet for en bruker å «kjøpe en billett» til Titanic. Når dataen er samlet inn bruker vi informasjonen i modellen for å forutsi om brukeren ville overlevd forliset eller ikke. Vi benyttet biblioteket «shiny» for å lage grensesnittet. Informasjonen vi henter fra brukeren er:
 
 1.	All relevant informasjon for modellen. Tittel, alder, kjønn, avreisested, billettklasse og om man reiser med søsken, barn, ektefelle eller foreldre.
 2.	Grensesnittet ber også om brukerens navn til tross for at det er individuelle verdier som ikke benyttes i modellen. Dette gjør vi ettersom vi mener det gir en mer realistisk brukeropplevelse.
 
-#### Håndtering av data i grensesnitt
+### Håndtering av data i grensesnitt
+
 Planen fra starten av wranglingen i grensesnittet var å lage en tibble som matchet det råe datasettet slik at vi kunne sende denne dataen inn i wrangling.R og videre inn i model_data.R for å gjøre dataen klar for modellen. Vi innså dog at det hadde dukket opp noe teknisk gjeld, med kun noen dager igjen til prosjektet skulle leveres. 
 
 Model_data.R, som håndterte dataen og lagde dummydata splittet også opp dataen i treningsdata og testdata. Vi så på muligheten for å splitte opp denne funksjonen, men når vi kjørte "bake" på den nye dataen med kun en rad fungerte ikke dette, ettersom "bake" ikke kan opprette alle dummy-variablene vi trengte. Ettersom grensesnittet kun besto av en rad med data og skulle håndteres av en ferdig trent modell var vi nødt til å finne en rask nødløsning. 
@@ -186,7 +190,8 @@ Vi håndterte dette ved å manuelt opprette en tibble som matchet dataen - etter
 
 Billettprisen er en faktor i modellen, men noe vi ikke så på som særlig relevant for grensesnittet. Vi valgte derfor å finne medianprisen for hver enkelt avreisehavn og billettklasse og på den måten sette en pris basert på "billetten man kjøper". Resultatet av dette er nå hardkodet inn i app.R
 
-```{r, echo=FALSE, fig.align='center', fig.cap = "Pris for klasse og avreisedestinasjon."}
+
+```{r, echo=FALSE, out.width='80%', fig.width=7, fig.height=5,fig.align='center', fig.cap = "Pris for klasse og avreisedestinasjon."}
 avg_price_per <- median_price_by_port_class(data)
 plot_median_price(avg_price_per)
 ```
@@ -197,12 +202,13 @@ Vi har også noen globale variabler i prosjektet som vi ble nødt til å bruke g
 Grensesnittet bruker ferdig trente modeller lagret med saveRDS og hentet med readRDS. Dette ønsket vi å gjøre slik at grensesnittet ikke trenger å vente på trening av modeller for hver gang man benytter det.
 
 
-#### Resultat
+### Resultat
+
 Når brukeren trykker på «Kjøp billett» knappen vil dataen transformeres og den lagrede modellen blir kjørt på dataen fra brukeren. Grensesnittet viser umiddelbart indikasjonen fra modellen om brukeren ville overlevd forliset eller ikke. 
 
 
 
-#### Oppsummering og refleksjon
+### Oppsummering og refleksjon
 
 I dette prosjektet har vi jobbet med å bygge en maskinlæringsmodell for å forutsi overlevelse på Titanic ved å analysere passasjerdata. Mye av arbeidet gikk med til å rense og forbedre dataen. Vi ser på det som svært sannsynlig at mye av modellenes treffsikkerhet ligger i dette steget. 
 

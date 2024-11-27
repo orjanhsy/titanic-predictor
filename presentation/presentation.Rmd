@@ -144,10 +144,10 @@ tuned_lso_acc <- mean(tuned_lso_pred == t_test$Survived)
 tuned_rf_acc <- mean(tuned_rf_pred == t_test$Survived)
 tuned_xgb_acc <- mean(tuned_xgb_pred == t_test$Survived)
 
-#code in norwegian because knitr::kable uses 
+
 accs <- tibble (
   Model = c("LASSO", "RANDOM FOREST", "XGBOOST"),
-  Treffsikkerhet = c(tuned_lso_acc, tuned_rf_acc, tuned_xgb_acc)
+  Treffsikkerhet = c(tuned_lso_acc, tuned_rf_acc, tuned_xgb_acc) #code in Norwegian because knitr::kable uses 
 )
 
 knitr::kable(accs, caption = "Nøyaktighet for ulike modeller")
@@ -201,6 +201,7 @@ Når brukeren trykker på «Kjøp billett» knappen vil dataen transformeres og 
 
 
 #### Oppsummering og refleksjon
+
 I dette prosjektet har vi jobbet med å bygge en maskinlæringsmodell for å forutsi overlevelse på Titanic ved å analysere passasjerdata. Mye av arbeidet gikk med til å rense og forbedre dataen. Vi ser på det som svært sannsynlig at mye av modellenes treffsikkerhet ligger i dette steget. 
 
 Ettersom dette er en kjent oppgave, med mange tidligere gode løsninger var vi opptatt av å ikke gjøre noen research på forhånd på hvordan andre har løst problemet. Vi ønsket å løse oppgaven på best mulig måte uten hjelp eller inspirasjon fra andre løsninger. Etter å ha gjennomført vår beste løsning har vi dog sett at andre har klart å løse problemet med høyere treffsikkerhet. 

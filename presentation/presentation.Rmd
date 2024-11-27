@@ -152,7 +152,7 @@ accs <- tibble (
 
 knitr::kable(accs, caption = "Nøyaktighet for ulike modeller")
 ```
-Modellene har relativt lik treffsikkerhet. Ca. 85% er ikke - isolert sett - særlig imponerende. Vi tror likevel dette er omtrent hvor treffsikker en slik model kan bli gitt problemstillingen samt hvor lite datasettet er. TODO: VI VET JO DET KAN BLI BEDRE. SIER IKKE AT VI SKAL GJØRE OM, MEN ET GOOGLE SØK VISER JO DET -> Kommentar: da får vi bare skrive at det fins bedre og hvorfor vi tror de er bedre enn vår. Jeg har ikke googlet i det hele tatt så jeg aner ikke hva grunnene skulle vært atm. men det stemmer sikkert at det i hovedsak har med wrangling å gjøre. Kan sikkert bare skrive at det er grunnen.
+Modellene har relativt lik treffsikkerhet. Ca. 85% er ikke - isolert sett - særlig imponerende. Vi tror likevel dette er omtrent hvor treffsikker en slik model kan bli gitt problemstillingen samt hvor lite datasettet er. Vi kommer tilbake til dette i siste avsnitt.
 
 
 ### Hvilke faktorer påvirker resultatet mest
@@ -167,7 +167,9 @@ plot_vip_lso_rf(vip_lso_rf)
 vip_xgb <- vip_xgb(tuned_xgb, t_train)
 plot_vip_xgb(vip_xgb)
 ```
-Det vi ser er at de forskjellige modellene vektlegger forskjellige faktorer. Dette ser ut til å gjelde også når vi ikke bruker set.seed(). Dette stammer trolig fra at modellene gjennomfører treningen forskjellig, spesielt mellom de tre-baserte modellene og Lasso. TODO: KANSKJE LITT MER DETALJER OM HVORFOR!! -> Et resultat som er spesielt interessant ifra disse figurene er hvor lite viktighet Lasso gir til faktorer som blant annet sex_male, title_mr. Disse faktorene forteller oss at passasjerene er menn, noe som er avdekket i studier til å være en av de viktigste faktorene. Likevell har samtlige modeller ingen fokus på dem. Vi konkluderer med at dette er fordi sex_female - som samtlige modeller har satt mye fokus på - forteller modellen nok om hvilket kjønn passasjeren har. Dette er spesielt aktuelt i Lasso, hvor en av karakteristikkene er å straffe bruk av koeffisienter eller veldig sammenhengende faktorer, men vi ser det også i Gradient Boosting Tree. 
+Det vi ser er at de forskjellige modellene vektlegger forskjellige faktorer. Dette ser ut til å gjelde også når vi ikke bruker set.seed(). Dette stammer trolig fra at modellene gjennomfører treningen forskjellig, spesielt mellom de tre-baserte modellene og Lasso. 
+
+Et resultat som er spesielt interessant ifra disse figurene er hvor lite viktighet Lasso gir til faktorer som blant annet sex_male, title_mr. Disse faktorene forteller oss at passasjerene er menn, noe som er avdekket i studier til å være en av de viktigste faktorene. Likevell har to av modellene ingen fokus på dem. Vi konkluderer med at dette er fordi sex_female - som samtlige modeller har satt mye fokus på - forteller modellen nok om hvilket kjønn passasjeren har. Dette er spesielt aktuelt i Lasso, hvor en av karakteristikkene er å straffe bruk av koeffisienter eller veldig sammenhengende faktorer, men vi ser det også i Gradient Boosting Tree. 
 
 ### Brukergrensesnitt
 I brukergrensesnittet har vi implementert mulighet for en bruker å «kjøpe en billett» til Titanic. Når dataen er samlet inn bruker vi informasjonen i modellen for å forutsi om brukeren ville overlevd forliset eller ikke. Vi benyttet biblioteket «shiny» for å lage grensesnittet. Informasjonen vi henter fra brukeren er:
@@ -178,7 +180,7 @@ I brukergrensesnittet har vi implementert mulighet for en bruker å «kjøpe en 
 #### Håndtering av data i grensesnitt
 Planen fra starten av wranglingen i grensesnittet var å lage en tibble som matchet det råe datasettet slik at vi kunne sende denne dataen inn i wrangling.R og videre inn i model_data.R for å gjøre dataen klar for modellen. Vi innså dog at det hadde dukket opp noe teknisk gjeld, med kun noen dager igjen til prosjektet skulle leveres. 
 
-Model_data.R, som håndterte dataen og lagde dummydata splittet også opp dataen i treningsdata og testdata. Vi så på muligheten for å splitte opp denne funskjonen, men når vi kjørte "bake" på den nye dataen med kun en rad fungerte ikke dette, ettersom "bake" ikke kan opprette alle dummy-variablene vi trengte. Ettersom grensesnittet kun besto av en rad med data og skulle håndteres av en ferdig trent modell var vi nødt til å finne en rask nødløsning. 
+Model_data.R, som håndterte dataen og lagde dummydata splittet også opp dataen i treningsdata og testdata. Vi så på muligheten for å splitte opp denne funksjonen, men når vi kjørte "bake" på den nye dataen med kun en rad fungerte ikke dette, ettersom "bake" ikke kan opprette alle dummy-variablene vi trengte. Ettersom grensesnittet kun besto av en rad med data og skulle håndteres av en ferdig trent modell var vi nødt til å finne en rask nødløsning. 
 
 Vi håndterte dette ved å manuelt opprette en tibble som matchet dataen - etter den var prosessert av model_data - i serversiden av appen. Disse valgene ble tatt, delvis grunnet miskommunikasjon og oppdeling av oppgaver. Vi ser at dette muligvis kunne blitt gjort på en både bedre og enklere måte om vi skulle jobbet videre på prosjektet.
 

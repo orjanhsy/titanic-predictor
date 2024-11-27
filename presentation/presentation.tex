@@ -113,16 +113,29 @@
 \urlstyle{same}
 \hypersetup{
   pdftitle={Prosjekt Titanic overlevelse},
-  pdfauthor={Tobias Windingstad og Ørjan Hammer},
+  pdfauthor={17377 og 17371},
   hidelinks,
   pdfcreator={LaTeX via pandoc}}
 
 \title{Prosjekt Titanic overlevelse}
-\author{Tobias Windingstad og Ørjan Hammer}
+\author{17377 og 17371}
 \date{}
 
 \begin{document}
 \maketitle
+
+\subsection{Viktig informasjon:}\label{viktig-informasjon}
+
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\tightlist
+\item
+  Link til kildekode på GitHub:
+  \url{https://github.com/orjanhsy/titanic-predictor} Vi leverer også en
+  zip-mappe
+\item
+  Les README.md først.
+\end{enumerate}
 
 \subsection{Introduksjon til oppgaven}\label{introduksjon-til-oppgaven}
 
@@ -271,9 +284,9 @@ Gjennom hele data-wrangling prosessen sørger vi for at datasettet er
 renere, mer konsistente og at de manglende variablene er håndtert.
 Wranglingen kunne vært gjort på mange måter, og har en stor påvikning på
 det endelige resultatet. Om vi skulle gjenntatt prosjektet burde vi i
-større grad undersøkt datasettet i større grad før vi startet
-wranglingen. Til tross for dette føler vi at dataen er håndtert på en
-god måte.
+større grad undersøkt datasettet før vi startet wranglingen. Til tross
+for dette føler vi at dataen er håndtert på en god måte. Kommer tilbake
+til dette i slutten av oppgaven.
 
 \subsubsection{Lag dummy-data og initial
 split}\label{lag-dummy-data-og-initial-split}
@@ -354,7 +367,7 @@ RANDOM FOREST & 0.8770950 \\
 XGBOOST & 0.8715084 \\
 \end{longtable}
 
-Modellene har relativt lik treffsikkerhet. Ca. 85\% er ikke - isolert
+Modellene har relativt lik treffsikkerhet. Ca. 87\% er ikke - isolert
 sett - særlig imponerende. Vi tror likevel dette er omtrent hvor
 treffsikker en slik model kan bli gitt problemstillingen samt hvor lite
 datasettet er. Vi kommer tilbake til dette i siste avsnitt.
@@ -466,9 +479,11 @@ Vi har også noen globale variabler i prosjektet som vi ble nødt til å
 bruke grunnet mangel på tid og erfaring med utvikling av grensesnitt og
 shiny pakken i R.
 
-Grensesnittet bruker ferdig trente modeller lagret med saveRDS og hentet
-med readRDS. Dette ønsket vi å gjøre slik at grensesnittet ikke trenger
-å vente på trening av modeller for hver gang man benytter det.
+Grensesnittet bruker en ferig trent Random Forrest modell lagret med
+saveRDS og hentet med readRDS. Vi bruker denne modellen ettersom den har
+høyest treffsikkerhet. Dette ønsket vi å gjøre slik at grensesnittet
+ikke trenger å vente på trening av modeller for hver gang man benytter
+det.
 
 \subsubsection{Resultat}\label{resultat}
 

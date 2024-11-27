@@ -1,6 +1,6 @@
 ---
 title: "Prosjekt Titanic overlevelse"
-author: "Anonym"
+author: "17377 og 17371"
 output:
   pdf_document:
     keep_tex: true

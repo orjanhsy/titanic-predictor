@@ -1,10 +1,9 @@
 library(ggplot2)
 library(dplyr)
 
-# Funksjon for å lage et stacket søylediagram
 create_cabin_stacked_plot <- function(data) {
   ggplot(data, aes(x = cabin_prefix, y = n, fill = factor(Pclass))) +
-    geom_bar(stat = "identity") +  # Bruker stacket søyle
+    geom_bar(stat = "identity") + 
     labs(
       title = "Kabin per Klasse",
       x = "Kabin bokstav",

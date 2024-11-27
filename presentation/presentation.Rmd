@@ -2,9 +2,8 @@
 title: "Prosjekt Titanic overlevelse"
 author: "Tobias Windingstad og Ørjan Hammer"
 output:
-  html_document: default
   pdf_document: default
-
+  html_document: default
 ---
 
 ### Introduksjon til oppgaven:
@@ -61,7 +60,7 @@ Data wrangling er prosessen med å forberede, rense og strukturere data for anal
 ##### Avreisehavn: 
 To av passasjerene mangler avreisehavn. Siden begge disse passasjerene har reist med førsteklasse og betalt samme pris finner vi gjennomsnittsprisen for alle førsteklasse-reisende for hver havn. Vi setter så avreisehavnen for de to passasjerene til den havnen som korrelerer best med prisen de har betalt. Vi lagde senere en funskjon som gjorde dette for alle havner ettersom vi trengte dette i grensesnittet.
 
-```{r, echo=FALSE, fig.align='center', fig.cap="**_Figur 1:_** *Median for førsteklasse passasjerer for avreisedestinasjon.*"}
+```{r, echo=FALSE, fig.align='center', fig.cap = "Pris for 1.klasse og avreisehavn."}
 median_fare_plot <- plot_median_fare(na_data)
 print(median_fare_plot)
 ```
@@ -96,7 +95,7 @@ get_last_name <- function(name) {
 #### 2. Ekstrahere tittel
 Vi ønsket å isolere tittelen fra navnet og legge den til i en egen kolonne. Vår teori er at dette kan gjøre dataen mer tilpasset maskinlæring ettersom tittelen kan være en indikator på faktorer som sivilstatus, alder eller sosioøkonomisk status. Etter å ha testet modellen og sjekket variabler innså vi at det var svært mange ulike titler. Vi valgte derfor å håndtere dette ved å putte alle sjeldne titler (<10) inn i en "other" varaibel. 
 
-```{r, echo=FALSE, fig.align='center', fig.cap="**_Figur 2:_** *Antall passasjerer per tittle.*"}
+```{r, echo=FALSE, fig.align='center', fig.cap = "Antall passasjerer per tittel"}
 title_distribution <- plot_title_distribution(title_dist)
 print(title_distribution)
 ```
@@ -106,7 +105,7 @@ For å redusere kompleksiteten i datasettet fjerner vi kolonnen Cabin ettersom d
 
 Gjennom hele data-wrangling prosessen sørger vi for at datasettet er renere, mer konsistente og at de manglende variablene er håndtert. Wranglingen kunne vært gjort på mange måter, og har en stor påvikning på det endelige resultatet. Om vi skulle gjenntatt prosjektet burde vi i større grad undersøkt datasettet i større grad før vi startet wranglingen. Til tross for dette føler vi at dataen er håndtert på en god måte.
 
-```{r, echo=FALSE, fig.align='center', fig.cap="**_Figur 3:_** *Kabin fordeling basert på klasse.*"}
+```{r, echo=FALSE, fig.align='center', fig.cap = "Kabin fordeling per klasse"}
 cabin_distribution <- plot_cabin_dist(na_data)
 print(cabin_distribution)
 ```
@@ -120,7 +119,7 @@ t_test <- model_data$t_test
 ```
 
 ### Tren modeller
-Vi fant ut at de mest relevant modellene for problemet var Lasso, Random Forest og Gradient Boosting Tree. Her implementerer vi dem, og finner de beste hyperparameterne. TODO: SKRIVE OM HVORFOR VI VALGTE PARAMETERNE. OM DET ER FORDI BEST PRACTICE, SÅ SKRIV DET. -> Vi laget en funksjon som tar inn modelnavn som parameter, og utifra navnet lager den en modelspesifikkasjon samt en grid med potensielle hyperparameter. Spennet av verdier i dette griddet har vi valgt basert på det som virker som konsensus på blant annet Stack Overflow (eW, noe annet?). Videre bruker den tune_grid() fra tune-biblioteket i Tidyverse i kombinasjon med select_best() til å finne hvilke hyperparametere som sammen gir den beste treffsikkerheten. 
+Vi fant ut at de mest relevant modellene for problemet var Lasso, Random Forest og Gradient Boosting Tree. Her implementerer vi dem, og finner de beste hyperparameterne. Vi laget en funksjon som tar inn modelnavn som parameter, og utifra navnet lager den en modelspesifikkasjon samt en grid med potensielle hyperparameter. Spennet av verdier i dette griddet har vi valgt basert på det som virker som konsensus på blant annet Stack Overflow. Videre bruker den tune_grid() fra tune-biblioteket i Tidyverse i kombinasjon med select_best() til å finne hvilke hyperparametere som sammen gir den beste treffsikkerheten. 
 ```{r, results='hide', message=FALSE}
 # Tuned models
 tuned_lso <- create_tuned_model("lasso", t_train) 
@@ -145,23 +144,26 @@ tuned_lso_acc <- mean(tuned_lso_pred == t_test$Survived)
 tuned_rf_acc <- mean(tuned_rf_pred == t_test$Survived)
 tuned_xgb_acc <- mean(tuned_xgb_pred == t_test$Survived)
 
+#code in norwegian because knitr::kable uses 
 accs <- tibble (
   Model = c("LASSO", "RANDOM FOREST", "XGBOOST"),
-  acc = c(tuned_lso_acc, tuned_rf_acc, tuned_xgb_acc)
+  Treffsikkerhet = c(tuned_lso_acc, tuned_rf_acc, tuned_xgb_acc)
 )
-print(accs)
+
+knitr::kable(accs, caption = "Nøyaktighet for ulike modeller")
 ```
-Modellene har relativt lik treffsikkerhet. Ca. 85% er ikke - isolert sett - særlig imponerende. Vi tror likevel dette er omtrent hvor treffsikker en slik model kan bli gitt problemstillingen samt hvor lite datasettet er. TODO: VI VET JO DET KAN BLI BEDRE. SIER IKKE AT VI SKAL GJØRE OM, MEN ET GOOGLE SØK VISER JO DET -> Kommentar: da får vi bare skrive at det fins bedre og hvorfor vi tror de er bedre enn vår. Jeg har ikke googlet i det hele tatt så jeg aner ikke hva grunnene skulle vært atm. men det stemmer sikkert at det i hovedsak har med wrangling å gjøre. Kan sikkert bare skrive at det er grunnen. 
+Modellene har relativt lik treffsikkerhet. Ca. 85% er ikke - isolert sett - særlig imponerende. Vi tror likevel dette er omtrent hvor treffsikker en slik model kan bli gitt problemstillingen samt hvor lite datasettet er. TODO: VI VET JO DET KAN BLI BEDRE. SIER IKKE AT VI SKAL GJØRE OM, MEN ET GOOGLE SØK VISER JO DET -> Kommentar: da får vi bare skrive at det fins bedre og hvorfor vi tror de er bedre enn vår. Jeg har ikke googlet i det hele tatt så jeg aner ikke hva grunnene skulle vært atm. men det stemmer sikkert at det i hovedsak har med wrangling å gjøre. Kan sikkert bare skrive at det er grunnen.
+
 
 ### Hvilke faktorer påvirker resultatet mest
 Videre ønsker vi å se på hvilken innvirkning hver enkelt faktor har på de ulike modellene. Gradient Boosting Tree fokuserte i stor grad på et fåtall variabler. Vi valge derfor å fremstille den i et eget plot. Vip-biblioteket ble brukt til å finne de viktigste faktorene.
 
-```{r, echo=FALSE, fig.align='center', fig.cap="**_Figur 4:_** *Faktorinnvirkning.*"}
+```{r, echo=FALSE, fig.align='center', fig.cap = "Faktorinnvirkning Lasso og Random Forrest"}
 vip_lso_rf <- vip_lso_rf(tuned_lso, tuned_rf, t_train)
 plot_vip_lso_rf(vip_lso_rf)
 ```
 
-```{r, echo=FALSE, fig.align='center', fig.cap="**_Figur 5:_** *Faktorinnvirkning.*"}
+```{r, echo=FALSE, fig.align='center', fig.cap = "Faktorinnvirkning XGB"}
 vip_xgb <- vip_xgb(tuned_xgb, t_train)
 plot_vip_xgb(vip_xgb)
 ```
@@ -182,7 +184,7 @@ Vi håndterte dette ved å manuelt opprette en tibble som matchet dataen - etter
 
 Billettprisen er en faktor i modellen, men noe vi ikke så på som særlig relevant for grensesnittet. Vi valgte derfor å finne medianprisen for hver enkelt avreisehavn og billettklasse og på den måten sette en pris basert på "billetten man kjøper". Resultatet av dette er nå hardkodet inn i app.R
 
-```{r, echo=FALSE, fig.align='center', fig.cap="**_Figur 6:_** *Pris for klasse og avreisedestinasjon.*"}
+```{r, echo=FALSE, fig.align='center', fig.cap = "Pris for klasse og avreisedestinasjon."}
 avg_price_per <- median_price_by_port_class(data)
 plot_median_price(avg_price_per)
 ```
@@ -198,6 +200,17 @@ Når brukeren trykker på «Kjøp billett» knappen vil dataen transformeres og 
 
 
 
-### TODO: KONKLUSJON, SAMMENDRAG, NOE NOE. VET IKKE HELT.
+#### Oppsummering og refleksjon
+I dette prosjektet har vi jobbet med å bygge en maskinlæringsmodell for å forutsi overlevelse på Titanic ved å analysere passasjerdata. Mye av arbeidet gikk med til å rense og forbedre dataen. Vi ser på det som svært sannsynlig at mye av modellenes treffsikkerhet ligger i dette steget. 
+
+Ettersom dette er en kjent oppgave, med mange tidligere gode løsninger var vi opptatt av å ikke gjøre noen research på forhånd på hvordan andre har løst problemet. Vi ønsket å løse oppgaven på best mulig måte uten hjelp eller inspirasjon fra andre løsninger. Etter å ha gjennomført vår beste løsning har vi dog sett at andre har klart å løse problemet med høyere treffsikkerhet. 
+
+En grunn til viktigheten av wrangling prosessen er størrelsen på datasettet. Med kun ca. 900 rader med data gjør det viktigheten av å håndtere manglende data på en god måte svært verdifullt. For hver variabel man tar ut av settet, eller setter unøyaktige verdier vil modellen ha et dårligere grunnlag for å gjøre nøyaktige prediksjoner. 
+
+Vi mener fremdeles at vi har gjort en god innsats med å forberede dataen til vår evne. Selv om vi nå - med vår nye læring og kunnskap - ser at det er forbedringer vi kunne gjort. Ettersom noe av den læringen er hentet fra andres arbeid går vi ikke i detalj. 
+
+Inkluderingen av et grensesnitt er noe som gir oppgaven et preg av interaktivitet, som vi synes er et spennende tillegskomponent. Å kunne benytte modellen og gjøre den tilgjengelig for brukere og gi en prediksjon for overlevelse gir prosjektet et mer praktisk og engasjerende aspekt. Til tross for mangel på erfaring med utvikling av grensesnitt, samt noen raske nødløsninger, synes vi at det fungerer godt.
+
+Til tross for forbedringspotensialet er vi fornøyd med hva vi har oppnådd. Vi har fått en bedre forståelse for maskinlæring, og kanskje særlig viktigheten av å håndtere dataen på en god måte.
 
 

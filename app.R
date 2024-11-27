@@ -10,7 +10,7 @@ trained_rf <- readRDS("code/models/tuned_models/tuned_random_forest_model.rds")
 ui <- fluidPage(
   theme = bs_theme(
     version = 4,
-    bootswatch = "minty"          
+    bootswatch = "minty"        
   ),
   
   titlePanel("Kjøp billett til Titanic"),

@@ -1,6 +1,6 @@
 ---
 title: "Prosjekt Titanic overlevelse"
-author: "Tobias Windingstad og Ørjan Hammer"
+author: "Anonym"
 output:
   pdf_document:
     keep_tex: true
@@ -8,6 +8,10 @@ output:
 header-includes:
    - \usepackage{float}
 ---
+## Viktig informasjon:
+
+1. Link til kildekode på GitHub: https://github.com/orjanhsy/titanic-predictor Vi leverer også en zip-mappe
+2. Les README.md først.
 
 ## Introduksjon til oppgaven
 

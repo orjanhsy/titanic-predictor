@@ -10,3 +10,4 @@ I knit-settings må knit-directory settes til current working directory. Det kan
 
 ## Hvordan kjøre appen
 
+Kjør app.R. Filen ligger i titanic-predictor

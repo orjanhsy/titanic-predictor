@@ -2,8 +2,8 @@
 title: "Prosjekt Titanic overlevelse"
 author: "Tobias Windingstad og Ørjan Hammer"
 output:
-  pdf_document: default
   html_document: default
+  pdf_document: default
 ---
 
 ## Introduksjon til oppgaven
@@ -75,17 +75,17 @@ handle_na_age <- function(data) {
 }
 
 getSibSpAge <- function(name, data) {
-  last_name <- get_last_name(name)
+  surname <- get_surname(name)
   
-  sib_sp <- filter(group_by(data, Name), get_last_name(Name) == last_name)
+  sib_sp <- filter(group_by(data, Name), get_surname(Name) == surname)
   
   estimated_age <- round(mean(sib_sp$Age, na.rm = TRUE))
   return (estimated_age)
 }
 
-get_last_name <- function(name) {
-  last_name <- strsplit(name, ',')[[1]][1]
-  return (last_name)
+get_surname <- function(name) {
+  surname <- strsplit(name, ',')[[1]][1]
+  return (surname)
 }
 ```
 

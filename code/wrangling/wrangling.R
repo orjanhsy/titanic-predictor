@@ -46,22 +46,21 @@ handle_na_age <- function(data) {
 }
 
 # gets the mean age of sibling(s) and/or spouse(s?), helpful in cases where age is N/A. 
-# The function assumes people with the same last name are siblings.
-# In cases where children/parents, or unrelated people with the same last name are present
+# The function assumes people with the same surname are siblings.
+# In cases where children/parents, or unrelated people with the same surname are present
 # this will result in a less accurate estimate of the persons age.
 getSibSpAge <- function(name, data) {
-  last_name <- get_last_name(name)
+  surname <- get_surname(name)
   
-  sib_sp <- filter(group_by(data, Name), get_last_name(Name) == last_name)
+  sib_sp <- filter(group_by(data, Name), get_surname(Name) == surname)
   
   estimated_age <- round(mean(sib_sp$Age, na.rm = TRUE))
   return (estimated_age)
 }
 
-# gets last
-get_last_name <- function(name) {
-  last_name <- strsplit(name, ',')[[1]][1]
-  return (last_name)
+get_surname <- function(name) {
+  surname <- strsplit(name, ',')[[1]][1]
+  return (surname)
 }
 
 check_titles <- function(data){

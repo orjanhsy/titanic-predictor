@@ -69,11 +69,11 @@ plot_vip_lso_rf <- function(vip_data) {
     scale_fill_manual(values = c("Lasso" = "skyblue", "Random Forest" = "orange")) +
     theme_minimal() +
     theme(
-      plot.background = element_rect(color = "black", linewidth = 1),  # Innramming
-      panel.background = element_rect(fill = "white"),  # Hvit bakgrunn på panelet
-      plot.title = element_text(size = 16, face = "bold", hjust = 0.5),  # Fet overskrift
-      axis.title = element_text(face = "bold"),  # Fet aksjetitler
-      axis.text = element_text(face = "bold")  # Fet aksjetekst
+      plot.background = element_rect(color = "black", linewidth = 1),  
+      panel.background = element_rect(fill = "white"), 
+      plot.title = element_text(size = 16, face = "bold", hjust = 0.5), 
+      axis.title = element_text(face = "bold"),  
+      axis.text = element_text(face = "bold")  
     )
   
   return(percentage_plot)
@@ -82,7 +82,7 @@ plot_vip_lso_rf <- function(vip_data) {
 plot_vip_xgb <- function(vip_data) {
   xgb_percentage_plot <- ggplot(vip_data, aes(x = reorder(Variable, Importance_percentage), y = Importance_percentage)) +
     geom_col(fill = "skyblue") +
-    geom_text(aes(label = round(Importance_percentage, 1)), hjust = -0.1, size = 3) +  # Redusert tekststørrelse
+    geom_text(aes(label = round(Importance_percentage, 1)), hjust = -0.1, size = 3) +  
     coord_flip() +
     labs(title = "Faktorinnvirkning Gradient Boosting Tree",
          x = "Variabel",
@@ -90,39 +90,12 @@ plot_vip_xgb <- function(vip_data) {
     theme_minimal() +
     theme(legend.position = "none") +
     theme(
-      plot.background = element_rect(color = "black", linewidth = 1),  # Innramming rundt hele plottet
-      plot.title = element_text(size = 14, face = "bold", hjust = 0.5),  # Redusert fontstørrelse på tittel
-      axis.title = element_text(face = "bold", size = 12),  # Redusert fontstørrelse på aksjetitler
-      axis.text = element_text(face = "bold", size = 10),  # Redusert fontstørrelse på aksjetekst
-      plot.margin = margin(10, 10, 10, 10)  # Juster margene rundt plottet
+      plot.background = element_rect(color = "black", linewidth = 1),  
+      plot.title = element_text(size = 14, face = "bold", hjust = 0.5),  
+      axis.title = element_text(face = "bold", size = 12),  
+      axis.text = element_text(face = "bold", size = 10),  
+      plot.margin = margin(10, 10, 10, 10)  
     )
   
   return(xgb_percentage_plot)
 }
-
-# source("code/wrangling/wrangling.R")
-# source("code/models/model_data.R")
-# source("code/models/models.R")
-# 
-# # prepare data for models
-# path <- paste(getwd(), "/data/", "Titanic-Dataset.csv", sep = '')
-# list_data <- wrangle_data(path = path)
-# data <- list_data$data
-# title_dist <- list_data$title_dist
-# na_data <- wrangle_data(na = TRUE, path = path)
-# 
-# model_data <- create_dummy_data(data)
-# 
-# t_train <- model_data$t_train
-# t_test <- model_data$t_test
-# 
-# # Tuned models
-# tuned_lso <- create_tuned_model("lasso", t_train)
-# tuned_rf <- create_tuned_model("random_forest", t_train)
-# tuned_xgb <- create_tuned_model("xgboost", t_train)
-# 
-# vip_lso_rf <- vip_lso_rf(tuned_lso, tuned_rf, t_train)
-# vip_xgb <- vip_xgb(tuned_xgb, t_train)
-# 
-# print(plot_vip_lso_rf(vip_lso_rf))
-# print(plot_vip_xgb(vip_xgb))

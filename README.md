@@ -4,7 +4,8 @@ Dette er et prosjekt hvor vi i en gruppe trente klassiferingsmodeller til å pre
 ## Hvordan kjøre (knitte) PRESENTATION.md
 Dette er dekket av kommentarer i første kodeblikk i PRESENTATION.md. 
 Du må sette working directory til root i prosjektet. Eksempelvis `setwd("path to project files")`.
-I knit-settings må knit-directory settes til current working directory. Det kan gjøres slik:
+I knit-settings må knit-directory settes til current working directory. Det kan gjøres slik: 
+
 ![image](https://github.com/user-attachments/assets/324bcc8a-506e-4996-97e2-6cdc105d5870)
 
 ## Hvordan kjøre appen

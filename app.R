@@ -1,7 +1,17 @@
+# Dependencies
+dependencies <- c("dplyr", "shiny", "bslib", "tibble")
+for (pkg in dependencies) {
+  if (!require(pkg, character.only = TRUE)) {
+    install.packages(pkg)
+  }
+  library(pkg, character.only = TRUE)
+}
+
 library(dplyr)
 library(shiny)
 library(bslib)
 library(tibble)
+
 
 ticket_tibble <- NULL
 print(getwd())

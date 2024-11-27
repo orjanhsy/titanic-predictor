@@ -2,8 +2,11 @@
 title: "Prosjekt Titanic overlevelse"
 author: "Tobias Windingstad og Ørjan Hammer"
 output:
+  pdf_document:
+    keep_tex: true
   html_document: default
-  pdf_document: default
+header-includes:
+   - \usepackage{float}
 ---
 
 ## Introduksjon til oppgaven
@@ -55,15 +58,15 @@ Data wrangling er prosessen med å forberede, rense og strukturere data for anal
 
 ### 1. Behandling av manglende verdier (NA)
 
-#### Avreisehavn:
+### Avreisehavn
 To av passasjerene mangler avreisehavn. Siden begge disse passasjerene har reist med førsteklasse og betalt samme pris finner vi gjennomsnittsprisen for alle førsteklasse-reisende for hver havn. Vi setter så avreisehavnen for de to passasjerene til den havnen som korrelerer best med prisen de har betalt. Vi lagde senere en funskjon som gjorde dette for alle havner ettersom vi trengte dette i grensesnittet.
 
-```{r, echo=FALSE, out.width='80%', fig.width=7, fig.height=5,fig.align='center', fig.cap = "Pris for 1.klasse og avreisehavn."}
+```{r, echo=FALSE, out.width='80%', fig.width=7, fig.height=5,fig.align='center', fig.pos='H', fig.cap = "Pris for 1.klasse og avreisehavn."}
 median_fare_plot <- plot_median_fare(na_data)
 print(median_fare_plot)
 ```
 
-#### Alder:
+### Alder
 For passasjerer med manglende alder, bruker vi en median-alder som standard, med en ekstra detalj for personer som reiste med søsken eller ektefelle (SibSp > 0), men ikke med barn eller foreldre (Parch == 0). I slike tilfeller bruker vi gjennomsnittsalderen for personer med samme etternavn (antatt å være søsken eller ektefeller). Dette gir mange av de reisende medianalder, men vi mener at ved å legge til denne behandlingen vil vi kunne ha noe sterkere antakelser om alderen til noen av passasjerene. Vi ser det kunne vært mulighet for at andre faktorer kan påvirke alder, som f.eks. tittel eller klasse, men vi har ikke tatt hensyn til dette i prosjektet.
 
 ```{r, results='hide', message=FALSE, eval=FALSE}
@@ -94,7 +97,7 @@ get_surname <- function(name) {
 
 Vi ønsket å isolere tittelen fra navnet og legge den til i en egen kolonne. Vår teori er at dette kan gjøre dataen mer tilpasset maskinlæring ettersom tittelen kan være en indikator på faktorer som sivilstatus, alder eller sosioøkonomisk status. Etter å ha testet modellen og sjekket variabler innså vi at det var svært mange ulike titler. Vi valgte derfor å håndtere dette ved å putte alle sjeldne titler (<10) inn i en "other" varaibel. 
 
-```{r, echo=FALSE, out.width='80%', fig.width=7, fig.height=5,fig.align='center', fig.cap = "Antall passasjerer per tittel"}
+```{r, echo=FALSE, out.width='80%', fig.width=7, fig.height=5,fig.align='center', fig.pos='H', fig.cap = "Antall passasjerer per tittel"}
 title_distribution <- plot_title_distribution(title_dist)
 print(title_distribution)
 ```
@@ -105,7 +108,7 @@ For å redusere kompleksiteten i datasettet fjerner vi kolonnen Cabin ettersom d
 
 Gjennom hele data-wrangling prosessen sørger vi for at datasettet er renere, mer konsistente og at de manglende variablene er håndtert. Wranglingen kunne vært gjort på mange måter, og har en stor påvikning på det endelige resultatet. Om vi skulle gjenntatt prosjektet burde vi i større grad undersøkt datasettet i større grad før vi startet wranglingen. Til tross for dette føler vi at dataen er håndtert på en god måte.
 
-```{r, echo=FALSE, out.width='80%', fig.width=7, fig.height=5,fig.align='center', fig.cap = "Kabin fordeling per klasse"}
+```{r, echo=FALSE, out.width='80%', fig.width=7, fig.height=5,fig.align='center', fig.pos='H', fig.cap = "Kabin fordeling per klasse"}
 cabin_distribution <- plot_cabin_dist(na_data)
 print(cabin_distribution)
 ```
@@ -160,18 +163,20 @@ Modellene har relativt lik treffsikkerhet. Ca. 85% er ikke - isolert sett - sær
 
 Videre ønsker vi å se på hvilken innvirkning hver enkelt faktor har på de ulike modellene. Gradient Boosting Tree fokuserte i stor grad på et fåtall variabler. Vi valge derfor å fremstille den i et eget plot. Vip-biblioteket ble brukt til å finne de viktigste faktorene.
 
-```{r, echo=FALSE, out.width='80%', fig.width=7, fig.height=5,fig.align='center', fig.cap = "Faktorinnvirkning Lasso og Random Forrest"}
+```{r, echo=FALSE, out.width='80%', fig.width=7, fig.height=5,fig.align='center', fig.pos='H', fig.cap = "Faktorinnvirkning Lasso og Random Forrest"}
 vip_lso_rf <- vip_lso_rf(tuned_lso, tuned_rf, t_train)
 plot_vip_lso_rf(vip_lso_rf)
 ```
 
-```{r, echo=FALSE, out.width='80%', fig.width=7, fig.height=5,fig.align='center', fig.cap = "Faktorinnvirkning XGB"}
+```{r, echo=FALSE, out.width='80%', fig.width=7, fig.height=5,fig.align='center', fig.pos='H', fig.cap = "Faktorinnvirkning XGB"}
 vip_xgb <- vip_xgb(tuned_xgb, t_train)
 plot_vip_xgb(vip_xgb)
 ```
-Det vi ser er at de forskjellige modellene vektlegger forskjellige faktorer. Dette ser ut til å gjelde også når vi ikke bruker set.seed(). Dette stammer trolig fra at modellene gjennomfører treningen forskjellig, spesielt mellom de tre-baserte modellene og Lasso. 
+# 
+Vi ser at de forskjellige modellene vektlegger forskjellige faktorer. Dette ser ut til å gjelde også når vi ikke bruker set.seed(). Dette stammer trolig fra at modellene gjennomfører treningen forskjellig, spesielt mellom de tre-baserte modellene og Lasso. 
 
 Et resultat som er spesielt interessant ifra disse figurene er hvor lite viktighet Lasso gir til faktorer som blant annet sex_male, title_mr. Disse faktorene forteller oss at passasjerene er menn, noe som er avdekket i studier til å være en av de viktigste faktorene. Likevell har to av modellene ingen fokus på dem. Vi konkluderer med at dette er fordi sex_female - som samtlige modeller har satt mye fokus på - forteller modellen nok om hvilket kjønn passasjeren har. Dette er spesielt aktuelt i Lasso, hvor en av karakteristikkene er å straffe bruk av koeffisienter eller veldig sammenhengende faktorer, men vi ser det også i Gradient Boosting Tree. 
+
 
 ### Brukergrensesnitt
 
@@ -191,7 +196,7 @@ Vi håndterte dette ved å manuelt opprette en tibble som matchet dataen - etter
 Billettprisen er en faktor i modellen, men noe vi ikke så på som særlig relevant for grensesnittet. Vi valgte derfor å finne medianprisen for hver enkelt avreisehavn og billettklasse og på den måten sette en pris basert på "billetten man kjøper". Resultatet av dette er nå hardkodet inn i app.R
 
 
-```{r, echo=FALSE, out.width='80%', fig.width=7, fig.height=5,fig.align='center', fig.cap = "Pris for klasse og avreisedestinasjon."}
+```{r, echo=FALSE, out.width='80%', fig.width=7, fig.height=5,fig.align='center', fig.pos='H', fig.cap = "Pris for klasse og avreisedestinasjon."}
 avg_price_per <- median_price_by_port_class(data)
 plot_median_price(avg_price_per)
 ```

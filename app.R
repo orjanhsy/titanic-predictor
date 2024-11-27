@@ -4,7 +4,8 @@ library(bslib)
 library(tibble)
 
 ticket_tibble <- NULL
-trained_lasso <- readRDS("code/models/tuned_models/tuned_lasso_model.rds")
+print(getwd())
+trained_rf <- readRDS("code/models/tuned_models/tuned_random_forest_model.rds")
 
 ui <- fluidPage(
   theme = bs_theme(
@@ -179,7 +180,7 @@ server <- function(input, output) {
       select(-Embarked, -Title, -Sex) %>%
       mutate(Survived = as.factor(Survived))
     
-    prediction <- predict(trained_lasso, dummy_data, type = "class")
+    prediction <- predict(trained_rf, dummy_data, type = "class")
     
     # add survival to tibble
     ticket_tibble <<- ticket_tibble %>%

@@ -258,14 +258,6 @@ reisende bodde, ville vi ikke gjøre noen generalisering rundt dette.
 Name, Ticket og PassangerId er alle individuelle verdier som ikke vil ha
 noen påvirkning på modellene så vi fjernet disse.
 
-Gjennom hele data-wrangling prosessen sørger vi for at datasettet er
-renere, mer konsistente og at de manglende variablene er håndtert.
-Wranglingen kunne vært gjort på mange måter, og har en stor påvikning på
-det endelige resultatet. Om vi skulle gjenntatt prosjektet burde vi i
-større grad undersøkt datasettet i større grad før vi startet
-wranglingen. Til tross for dette føler vi at dataen er håndtert på en
-god måte.
-
 \begin{figure}[H]
 
 {\centering \includegraphics[width=0.8\linewidth]{presentation_files/figure-latex/unnamed-chunk-7-1} 
@@ -274,6 +266,14 @@ god måte.
 
 \caption{Kabin fordeling per klasse}\label{fig:unnamed-chunk-7}
 \end{figure}
+
+Gjennom hele data-wrangling prosessen sørger vi for at datasettet er
+renere, mer konsistente og at de manglende variablene er håndtert.
+Wranglingen kunne vært gjort på mange måter, og har en stor påvikning på
+det endelige resultatet. Om vi skulle gjenntatt prosjektet burde vi i
+større grad undersøkt datasettet i større grad før vi startet
+wranglingen. Til tross for dette føler vi at dataen er håndtert på en
+god måte.
 
 \subsubsection{Lag dummy-data og initial
 split}\label{lag-dummy-data-og-initial-split}
@@ -350,8 +350,8 @@ Model & Treffsikkerhet \\
 \bottomrule\noalign{}
 \endlastfoot
 LASSO & 0.8491620 \\
-RANDOM FOREST & 0.8547486 \\
-XGBOOST & 0.8324022 \\
+RANDOM FOREST & 0.8770950 \\
+XGBOOST & 0.8715084 \\
 \end{longtable}
 
 Modellene har relativt lik treffsikkerhet. Ca. 85\% er ikke - isolert

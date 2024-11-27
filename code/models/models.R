@@ -26,7 +26,7 @@ xgboost_model <- function(t_train){
 
 # return a specified (non fit) tuned model
 create_tuned_model <- function(model_type, t_train) {
-  folds <- vfold_cv(t_train, v = 2)
+  folds <- vfold_cv(t_train, v = 10)
   
   rec <- recipe(Survived ~., data = t_train) 
   
@@ -43,12 +43,12 @@ create_tuned_model <- function(model_type, t_train) {
   grid <- switch(model_type,
     "lasso" = grid_regular(
       penalty(), 
-      levels = 30
+      levels = 50
     ), 
     "random_forest" = grid_regular(
       mtry(range = c(2, ncol(t_train) - 1)),
       min_n(range = c(2, 10)),
-      levels = 5
+      levels = 30
     ),
     "xgboost" = grid_space_filling(
       parameters(
@@ -57,7 +57,7 @@ create_tuned_model <- function(model_type, t_train) {
         loss_reduction(range = c(0, 5)),
         min_n(range = c(2, 20))
       ),
-      size = 5 
+      size = 50 
     )
   )
   

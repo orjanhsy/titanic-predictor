@@ -106,13 +106,12 @@ print(title_distribution)
 
 For å redusere kompleksiteten i datasettet fjerner vi kolonnen Cabin ettersom den har svært mange i datasettet som ikke hadde denne variabelen. Vi så først på muligheten for at det var en tydelig sammenheng mellom Pclass og Cabin ved bruk av en Chi-Squared. Det var tydelig at passasjerer i Pclass 1 var konsentrert i A, B, C, D og E kabiner, men ettersom det er svært lite data på hvor de resterende reisende bodde, ville vi ikke gjøre noen generalisering rundt dette. Name, Ticket og PassangerId er alle individuelle verdier som ikke vil ha noen påvirkning på modellene så vi fjernet disse.
 
-Gjennom hele data-wrangling prosessen sørger vi for at datasettet er renere, mer konsistente og at de manglende variablene er håndtert. Wranglingen kunne vært gjort på mange måter, og har en stor påvikning på det endelige resultatet. Om vi skulle gjenntatt prosjektet burde vi i større grad undersøkt datasettet i større grad før vi startet wranglingen. Til tross for dette føler vi at dataen er håndtert på en god måte.
-
 ```{r, echo=FALSE, out.width='80%', fig.width=7, fig.height=5,fig.align='center', fig.pos='H', fig.cap = "Kabin fordeling per klasse"}
 cabin_distribution <- plot_cabin_dist(na_data)
 print(cabin_distribution)
 ```
 
+Gjennom hele data-wrangling prosessen sørger vi for at datasettet er renere, mer konsistente og at de manglende variablene er håndtert. Wranglingen kunne vært gjort på mange måter, og har en stor påvikning på det endelige resultatet. Om vi skulle gjenntatt prosjektet burde vi i større grad undersøkt datasettet før vi startet wranglingen. Til tross for dette føler vi at dataen er håndtert på en god måte. Kommer tilbake til dette i slutten av oppgaven.
 
 ### Lag dummy-data og initial split
 ```{r, results='hide', message=FALSE}
@@ -156,7 +155,7 @@ accs <- tibble (
 
 knitr::kable(accs, caption = "Nøyaktighet for ulike modeller")
 ```
-Modellene har relativt lik treffsikkerhet. Ca. 85% er ikke - isolert sett - særlig imponerende. Vi tror likevel dette er omtrent hvor treffsikker en slik model kan bli gitt problemstillingen samt hvor lite datasettet er. Vi kommer tilbake til dette i siste avsnitt.
+Modellene har relativt lik treffsikkerhet. Ca. 87% er ikke - isolert sett - særlig imponerende. Vi tror likevel dette er omtrent hvor treffsikker en slik model kan bli gitt problemstillingen samt hvor lite datasettet er. Vi kommer tilbake til dette i siste avsnitt.
 
 
 ### Hvilke faktorer påvirker resultatet mest
@@ -204,7 +203,7 @@ plot_median_price(avg_price_per)
 
 Vi har også noen globale variabler i prosjektet som vi ble nødt til å bruke grunnet mangel på tid og erfaring med utvikling av grensesnitt og shiny pakken i R. 
 
-Grensesnittet bruker ferdig trente modeller lagret med saveRDS og hentet med readRDS. Dette ønsket vi å gjøre slik at grensesnittet ikke trenger å vente på trening av modeller for hver gang man benytter det.
+Grensesnittet bruker en ferig trent Random Forrest modell lagret med saveRDS og hentet med readRDS. Vi bruker denne modellen ettersom den har høyest treffsikkerhet. Dette ønsket vi å gjøre slik at grensesnittet ikke trenger å vente på trening av modeller for hver gang man benytter det.
 
 
 ### Resultat

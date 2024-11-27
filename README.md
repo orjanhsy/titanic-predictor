@@ -1,4 +1,11 @@
-æ 	ø 	å
 ## Oversikt
-Dette er et prosjekt hvor vi i en gruppe trente klassiferingsmodeller til å predikere hvorvidt en person ville overlevd titatic. Prosessen dokumenteres sammen resultater og konklusjon i PRESENTATION.md under /presentation. Vi har også laget en applikasjon, som kan brukes til å eksperimentere med paramter til modellen. Se mer om hvordan du kj
+Dette er et prosjekt hvor vi i en gruppe trente klassiferingsmodeller til å predikere hvorvidt en person ville overlevd titatic. Prosessen dokumenteres sammen resultater og konklusjon i PRESENTATION.md under /presentation. Vi har også laget en applikasjon, som kanbrukes til å eksperimentere med paramter til modellen. Se mer om hvordan du kjører appen i *hvordan kjøre appen* under.  
+
+## Hvordan kjøre (knitte) PRESENTATION.md
+Dette er dekket av kommentarer i første kodeblikk i PRESENTATION.md. 
+Du må sette working directory til root i prosjektet. Eksempelvis `setwd("path to project files")`.
+I knit-settings må knit-directory settes til current working directory. Det kan gjøres slik:
+BILDE
+
+## Hvordan kjøre appen
 
